@@ -1,0 +1,397 @@
+import 'package:flutter/material.dart';
+import 'package:buddyapp/utils/app_colors.dart';
+import 'package:buddyapp/utils/app_text_styles.dart';
+
+class SettingsProfileScreen extends StatefulWidget {
+  const SettingsProfileScreen({super.key});
+
+  @override
+  State<SettingsProfileScreen> createState() => _SettingsProfileScreenState();
+}
+
+class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
+  bool _isDarkMode = false;
+  int _selectedIndex = 4; // Profile tab selected
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 24),
+          // Profile Card
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.shadow,
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // Avatar
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8B87D),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.person,
+                        size: 32,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // User Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Jordan Smith',
+                          style: AppTextStyles.h5.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'jordan.smith@example.com',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Team Member',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          // App Settings Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 12),
+                  child: Text(
+                    'APP SETTINGS',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textTertiary,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.shadow,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Dark Mode Toggle
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: AppColors.grey100,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.dark_mode_outlined,
+                                size: 20,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                'Dark Mode',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            Switch(
+                              value: _isDarkMode,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isDarkMode = value;
+                                });
+                              },
+                              activeColor: AppColors.primary,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.grey200,
+                      ),
+                      // Notifications
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: AppColors.grey100,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.notifications_outlined,
+                                size: 20,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                'Notifications',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right,
+                              color: AppColors.textTertiary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Account Actions Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 12),
+                  child: Text(
+                    'ACCOUNT ACTIONS',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textTertiary,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.shadow,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Help & Support
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: AppColors.grey100,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.help_outline,
+                                size: 20,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                'Help & Support',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right,
+                              color: AppColors.textTertiary,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.grey200,
+                      ),
+                      // Log Out
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEE2E2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.logout,
+                                size: 20,
+                                color: AppColors.error,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                'Log Out',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.error,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+    // bottomNavigationBar: Container(
+    //   decoration: BoxDecoration(
+    //     color: AppColors.white,
+    //     boxShadow: [
+    //       BoxShadow(
+    //         color: AppColors.shadow,
+    //         blurRadius: 8,
+    //         offset: const Offset(0, -2),
+    //       ),
+    //     ],
+    //   ),
+    //   child: SafeArea(
+    //     child: Padding(
+    //       padding: const EdgeInsets.symmetric(vertical: 8),
+    //       child: Row(
+    //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+    //         children: [
+    //           _buildNavItem(Icons.home_outlined, 'Home', 0),
+    //           _buildNavItem(Icons.folder_outlined, 'Projects', 1),
+    //           _buildNavItem(Icons.add_circle_outline, 'Add', 2),
+    //           _buildNavItem(Icons.bar_chart_outlined, 'Reports', 3),
+    //           _buildNavItem(Icons.person_outline, 'Profile', 4),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // ),
+  }
+
+  // Widget _buildNavItem(IconData icon, String label, int index) {
+  //   final isSelected = _selectedIndex == index;
+  //   return InkWell(
+  //     onTap: () {
+  //       setState(() {
+  //         _selectedIndex = index;
+  //       });
+  //     },
+  //     child: Container(
+  //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //       decoration: BoxDecoration(
+  //         color: isSelected ? const Color(0xFFE3F2FD) : Colors.transparent,
+  //         borderRadius: BorderRadius.circular(8),
+  //       ),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           Icon(
+  //             icon,
+  //             size: 24,
+  //             color: isSelected ? AppColors.primary : AppColors.textTertiary,
+  //           ),
+  //           const SizedBox(height: 4),
+  //           Text(
+  //             label,
+  //             style: AppTextStyles.labelSmall.copyWith(
+  //               color: isSelected ? AppColors.primary : AppColors.textTertiary,
+  //               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+}

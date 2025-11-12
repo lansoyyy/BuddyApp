@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:buddyapp/utils/app_theme.dart';
 import 'package:buddyapp/utils/app_constants.dart';
+import 'package:buddyapp/screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-      home: const PlaceholderScreen(),
+      home: const LoginScreen(),
     );
   }
 }
