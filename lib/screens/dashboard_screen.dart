@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:buddyapp/utils/app_colors.dart';
 import 'package:buddyapp/utils/app_text_styles.dart';
 import 'package:buddyapp/screens/settings_profile_screen.dart';
+import 'package:buddyapp/screens/camera_capture_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -142,7 +143,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 14,
+                              vertical: 4,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.grey50,
@@ -152,22 +153,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 width: 1,
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _selectedWorkorder ?? 'Select Workorder...',
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _selectedWorkorder,
+                                hint: Text(
+                                  'Select Workorder...',
                                   style: AppTextStyles.bodyMedium.copyWith(
-                                    color: _selectedWorkorder != null
-                                        ? AppColors.textPrimary
-                                        : AppColors.textTertiary,
+                                    color: AppColors.textTertiary,
                                   ),
                                 ),
-                                Icon(
+                                isExpanded: true,
+                                icon: const Icon(
                                   Icons.keyboard_arrow_down,
                                   color: AppColors.textTertiary,
                                 ),
-                              ],
+                                items: ['WO-12345', 'WO-12346', 'WO-12347']
+                                    .map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(
+                                      value,
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _selectedWorkorder = newValue;
+                                  });
+                                },
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -183,7 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 14,
+                              vertical: 4,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.grey50,
@@ -193,22 +210,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 width: 1,
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _selectedComponent ?? 'Select Component...',
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _selectedComponent,
+                                hint: Text(
+                                  'Select Component...',
                                   style: AppTextStyles.bodyMedium.copyWith(
-                                    color: _selectedComponent != null
-                                        ? AppColors.textPrimary
-                                        : AppColors.textTertiary,
+                                    color: AppColors.textTertiary,
                                   ),
                                 ),
-                                Icon(
+                                isExpanded: true,
+                                icon: const Icon(
                                   Icons.keyboard_arrow_down,
                                   color: AppColors.textTertiary,
                                 ),
-                              ],
+                                items: [
+                                  'Turbine Blade',
+                                  'Gearbox Assembly',
+                                  'Hydraulic System'
+                                ].map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(
+                                      value,
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _selectedComponent = newValue;
+                                  });
+                                },
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -224,7 +260,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 14,
+                              vertical: 4,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.grey50,
@@ -234,23 +270,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 width: 1,
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _selectedProcessStage ??
-                                      'Select Process Stage...',
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _selectedProcessStage,
+                                hint: Text(
+                                  'Select Process Stage...',
                                   style: AppTextStyles.bodyMedium.copyWith(
-                                    color: _selectedProcessStage != null
-                                        ? AppColors.textPrimary
-                                        : AppColors.textTertiary,
+                                    color: AppColors.textTertiary,
                                   ),
                                 ),
-                                Icon(
+                                isExpanded: true,
+                                icon: const Icon(
                                   Icons.keyboard_arrow_down,
                                   color: AppColors.textTertiary,
                                 ),
-                              ],
+                                items: [
+                                  'Visual Crack Detection',
+                                  'Dimensional Inspection',
+                                  'Surface Analysis'
+                                ].map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(
+                                      value,
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _selectedProcessStage = newValue;
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         ],
@@ -268,7 +322,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   height: 54,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Handle start capturing
+                      if (_selectedWorkorder != null &&
+                          _selectedComponent != null &&
+                          _selectedProcessStage != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CameraCaptureScreen(
+                              workorderNumber: _selectedWorkorder!,
+                              component: _selectedComponent!,
+                              processStage: _selectedProcessStage!,
+                            ),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Please select all fields before starting',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.white,
+                              ),
+                            ),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
