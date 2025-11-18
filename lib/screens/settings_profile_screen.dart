@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:buddyapp/utils/app_colors.dart';
 import 'package:buddyapp/utils/app_text_styles.dart';
+import 'package:buddyapp/services/firebase_auth_service.dart';
 
 class SettingsProfileScreen extends StatefulWidget {
   const SettingsProfileScreen({super.key});
@@ -12,6 +13,61 @@ class SettingsProfileScreen extends StatefulWidget {
 class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   bool _isDarkMode = false;
   int _selectedIndex = 4; // Profile tab selected
+  late FirebaseAuthService _authService;
+  Map<String, dynamic>? _userData;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeAuth();
+  }
+
+  Future<void> _initializeAuth() async {
+    _authService = await FirebaseAuthService.getInstance();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userData =
+        await _authService.getUserData(_authService.currentUser?.uid ?? '');
+    if (userData != null) {
+      setState(() {
+        _userData = userData;
+      });
+    }
+  }
+
+  Future<void> _logout() async {
+    try {
+      final result = await _authService.signOut();
+      if (result['success']) {
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/login',
+            (Route<dynamic> route) => false,
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to logout. Please try again.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +116,10 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Jordan Smith',
+                          _userData?['firstName'] != null &&
+                                  _userData?['lastName'] != null
+                              ? '${_userData!['firstName']} ${_userData!['lastName']}'
+                              : 'User',
                           style: AppTextStyles.h5.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
@@ -68,14 +127,14 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'jordan.smith@example.com',
+                          _userData?['email'] ?? 'user@example.com',
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Team Member',
+                          _userData?['role'] ?? 'Team Member',
                           style: AppTextStyles.bodySmall.copyWith(
                             color: AppColors.textTertiary,
                           ),
@@ -287,37 +346,40 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                         color: AppColors.grey200,
                       ),
                       // Log Out
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFEE2E2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.logout,
-                                size: 20,
-                                color: AppColors.error,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                'Log Out',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w500,
+                      InkWell(
+                        onTap: _logout,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEE2E2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.logout,
+                                  size: 20,
                                   color: AppColors.error,
                                 ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  'Log Out',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.error,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
