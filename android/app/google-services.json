@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "112021157024",
+    "project_id": "shopbuddy-e017c",
+    "storage_bucket": "shopbuddy-e017c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112021157024:android:406a7ba8053a00387645c5",
+        "android_client_info": {
+          "package_name": "com.example.buddyapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJUGbarNcSY0okHX1XVXECZOF7jJ2_wWs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
