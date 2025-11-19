@@ -10,6 +10,8 @@ import 'package:buddyapp/screens/reset_password_screen.dart';
 import 'package:buddyapp/screens/terms_screen.dart';
 import 'package:buddyapp/screens/privacy_screen.dart';
 import 'package:buddyapp/screens/dashboard_screen.dart';
+import 'package:buddyapp/screens/help_support_screen.dart';
+import 'package:buddyapp/screens/notifications_screen.dart';
 import 'package:buddyapp/services/firebase_auth_service.dart';
 import 'package:buddyapp/services/storage_service.dart';
 
@@ -57,6 +59,8 @@ class MyApp extends StatelessWidget {
         '/terms': (context) => const TermsScreen(),
         '/privacy': (context) => const PrivacyScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/help-support': (context) => const HelpSupportScreen(),
+        '/notifications': (context) => const NotificationsScreen(),
         '/register': (context) => const SignupScreen(),
       },
     );

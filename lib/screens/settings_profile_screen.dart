@@ -37,6 +37,60 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
     }
   }
 
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Confirm Logout',
+          style: AppTextStyles.h6.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to logout? You will need to sign in again to access your account.',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'Cancel',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _logout();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'Logout',
+              style: AppTextStyles.bodyMedium
+                  .copyWith(fontWeight: FontWeight.w600, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _logout() async {
     try {
       final result = await _authService.signOut();
@@ -69,6 +123,14 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
     }
   }
 
+  void _navigateToHelpSupport() {
+    Navigator.of(context).pushNamed('/help-support');
+  }
+
+  void _navigateToNotifications() {
+    Navigator.of(context).pushNamed('/notifications');
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -98,7 +160,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8B87D),
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -227,41 +289,45 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                         color: AppColors.grey200,
                       ),
                       // Notifications
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: AppColors.grey100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.notifications_outlined,
-                                size: 20,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                'Notifications',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w500,
+                      InkWell(
+                        onTap: _navigateToNotifications,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.grey100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.notifications_outlined,
+                                  size: 20,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
-                            ),
-                            Icon(
-                              Icons.chevron_right,
-                              color: AppColors.textTertiary,
-                            ),
-                          ],
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  'Notifications',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right,
+                                color: AppColors.textTertiary,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -303,41 +369,45 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                   child: Column(
                     children: [
                       // Help & Support
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: AppColors.grey100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.help_outline,
-                                size: 20,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                'Help & Support',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w500,
+                      InkWell(
+                        onTap: _navigateToHelpSupport,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.grey100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.help_outline,
+                                  size: 20,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
-                            ),
-                            Icon(
-                              Icons.chevron_right,
-                              color: AppColors.textTertiary,
-                            ),
-                          ],
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  'Help & Support',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right,
+                                color: AppColors.textTertiary,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Divider(
@@ -347,7 +417,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                       ),
                       // Log Out
                       InkWell(
-                        onTap: _logout,
+                        onTap: _showLogoutDialog,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20,

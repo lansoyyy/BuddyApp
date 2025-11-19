@@ -190,7 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           const SizedBox(height: 20),
                           // Component Field
                           Text(
-                            'Component (Anong part)',
+                            'Component (Part)',
                             style: AppTextStyles.labelLarge.copyWith(
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
