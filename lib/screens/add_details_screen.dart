@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:buddyapp/utils/app_colors.dart';
-import 'package:buddyapp/utils/app_text_styles.dart';
 import 'package:buddyapp/screens/review_upload_screen.dart';
 
 class AddDetailsScreen extends StatefulWidget {
@@ -59,23 +57,22 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
         title: Text(
           'Add Details',
-          style: AppTextStyles.h3.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         centerTitle: true,
       ),
@@ -88,7 +85,8 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
               height: 120,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: widget.photos.length,
                 itemBuilder: (context, index) {
                   final isSelected = index == _selectedPhotoIndex;
@@ -104,7 +102,9 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? AppColors.primary : Colors.transparent,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.transparent,
                           width: 3,
                         ),
                       ),
@@ -125,13 +125,14 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                               right: 4,
                               child: Container(
                                 padding: const EdgeInsets.all(2),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primary,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.check,
-                                  color: AppColors.white,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                   size: 16,
                                 ),
                               ),
@@ -150,10 +151,15 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                               ),
                               child: Text(
                                 'Photo ${index + 1}',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.white,
-                                  fontSize: 10,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontSize: 10,
+                                    ),
                               ),
                             ),
                           ),
@@ -188,18 +194,18 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                   // Project/Work Order
                   Text(
                     'Project/Work Order',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.grey100,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.grey300),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
@@ -215,7 +221,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                             value: value,
                             child: Text(
                               value,
-                              style: AppTextStyles.bodyMedium,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           );
                         }).toList(),
@@ -234,18 +240,18 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                   // Component Part
                   Text(
                     'Component Part',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.grey100,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.grey300),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
@@ -261,7 +267,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                             value: value,
                             child: Text(
                               value,
-                              style: AppTextStyles.bodyMedium,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           );
                         }).toList(),
@@ -280,30 +286,32 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                   // Damage Description
                   Text(
                     'Damage Description',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.grey100,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.grey300),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: TextField(
                       controller: _descriptionController,
                       maxLines: 4,
                       decoration: InputDecoration(
-                        hintText: 'e.g., Visible hairline crack on the main casing...',
-                        hintStyle: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textTertiary,
-                        ),
+                        hintText:
+                            'e.g., Visible hairline crack on the main casing...',
+                        hintStyle:
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).hintColor,
+                                ),
                         border: InputBorder.none,
                       ),
-                      style: AppTextStyles.bodyMedium,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -311,19 +319,18 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                   // Inspection Status
                   Text(
                     'Inspection Status',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      _buildStatusButton('Pass', AppColors.success),
+                      _buildStatusButton('Pass', Colors.green),
                       const SizedBox(width: 12),
-                      _buildStatusButton('Fail', AppColors.error),
+                      _buildStatusButton('Fail', Colors.red),
                       const SizedBox(width: 12),
-                      _buildStatusButton('Review', AppColors.warning),
+                      _buildStatusButton('Review', const Color(0xFFF59E0B)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -331,21 +338,20 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                   // Urgency Level
                   Text(
                     'Urgency Level',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      _buildUrgencyButton('Critical', AppColors.error),
+                      _buildUrgencyButton('Critical', Colors.red),
                       const SizedBox(width: 12),
                       _buildUrgencyButton('High', const Color(0xFFFF6B35)),
                       const SizedBox(width: 12),
-                      _buildUrgencyButton('Medium', AppColors.warning),
+                      _buildUrgencyButton('Medium', const Color(0xFFF59E0B)),
                       const SizedBox(width: 12),
-                      _buildUrgencyButton('Low', AppColors.textSecondary),
+                      _buildUrgencyButton('Low', Theme.of(context).hintColor),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -357,8 +363,9 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                     child: ElevatedButton(
                       onPressed: _saveMetadata,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -366,9 +373,10 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                       ),
                       child: Text(
                         'Save Metadata',
-                        style: AppTextStyles.buttonLarge.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
                       ),
                     ),
                   ),
@@ -383,10 +391,10 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                       },
                       child: Text(
                         'Apply to all ${widget.photos.length} photos',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                     ),
                   ),
@@ -412,10 +420,12 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.1) : AppColors.white,
+            color: isSelected
+                ? color.withOpacity(0.1)
+                : Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? color : AppColors.grey300,
+              color: isSelected ? color : Theme.of(context).dividerColor,
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -428,16 +438,17 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                     : label == 'Fail'
                         ? Icons.cancel_outlined
                         : Icons.info_outline,
-                color: isSelected ? color : AppColors.textSecondary,
+                color: isSelected ? color : Theme.of(context).hintColor,
                 size: 20,
               ),
               const SizedBox(width: 6),
               Text(
                 label,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isSelected ? color : AppColors.textSecondary,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isSelected ? color : Theme.of(context).hintColor,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
+                    ),
               ),
             ],
           ),
@@ -458,19 +469,21 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.1) : AppColors.white,
+            color: isSelected
+                ? color.withOpacity(0.1)
+                : Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? color : AppColors.grey300,
+              color: isSelected ? color : Theme.of(context).dividerColor,
               width: isSelected ? 2 : 1,
             ),
           ),
           child: Text(
             label,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: isSelected ? color : AppColors.textSecondary,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: isSelected ? color : Theme.of(context).hintColor,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
             textAlign: TextAlign.center,
           ),
         ),

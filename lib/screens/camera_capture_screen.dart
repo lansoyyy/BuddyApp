@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:buddyapp/utils/app_colors.dart';
-import 'package:buddyapp/utils/app_text_styles.dart';
 import 'package:buddyapp/screens/review_photos_screen.dart';
 
 class CameraCaptureScreen extends StatefulWidget {
@@ -112,9 +110,9 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
               child: CameraPreview(_controller!),
             )
           else
-            const Center(
+            Center(
               child: CircularProgressIndicator(
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
 
@@ -133,26 +131,26 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
                 children: [
                   Text(
                     'Workorder #${widget.workorderNumber}',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.white,
-                      fontSize: 13,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 13,
+                        ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Turbine Blade Inspection',
-                    style: AppTextStyles.h3.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Stage: ${widget.processStage}',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ],
               ),
@@ -165,9 +163,9 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
             left: 20,
             child: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(
+              icon: Icon(
                 Icons.close,
-                color: AppColors.white,
+                color: Theme.of(context).colorScheme.onSurface,
                 size: 28,
               ),
             ),
@@ -181,7 +179,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
               onPressed: _toggleFlash,
               icon: Icon(
                 _isFlashOn ? Icons.flash_on : Icons.flash_off,
-                color: AppColors.white,
+                color: Theme.of(context).colorScheme.onSurface,
                 size: 28,
               ),
             ),
@@ -201,19 +199,23 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
                   children: [
                     Text(
                       'Position Waybill in Frame',
-                      style: AppTextStyles.h3.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
-                        'Make sure all corners are visible and the document is flat.',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.white.withOpacity(0.9),
-                        ),
+                        'Make sure all corners are visible and document is flat.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.9),
+                            ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -232,10 +234,10 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
               children: [
                 Text(
                   'Align and capture',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.white,
-                    fontSize: 15,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 15,
+                      ),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -251,7 +253,10 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
                           color: Colors.black.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppColors.white.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.3),
                             width: 2,
                           ),
                         ),
@@ -260,7 +265,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
                             Center(
                               child: Icon(
                                 Icons.photo_library,
-                                color: AppColors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 size: 28,
                               ),
                             ),
@@ -270,17 +275,23 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
                                 right: 4,
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.primary,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Text(
                                     '${_capturedPhotos.length}',
-                                    style: AppTextStyles.bodySmall.copyWith(
-                                      color: AppColors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                   ),
                                 ),
                               ),
@@ -298,14 +309,14 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                             width: 4,
                           ),
                         ),
                         child: Container(
                           margin: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: AppColors.white,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.onSurface,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -327,7 +338,8 @@ class DashedBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.primary
+      ..color =
+          Colors.blue // Use a fixed color since we can't access context here
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
@@ -336,10 +348,10 @@ class DashedBorderPainter extends CustomPainter {
     const cornerRadius = 12.0;
 
     final path = Path();
-    
+
     // Top left corner
     path.moveTo(cornerRadius, 0);
-    
+
     // Top line
     double distance = cornerRadius;
     while (distance < size.width - cornerRadius) {
@@ -349,14 +361,14 @@ class DashedBorderPainter extends CustomPainter {
         path.moveTo(distance, 0);
       }
     }
-    
+
     // Top right corner
     path.lineTo(size.width - cornerRadius, 0);
     path.arcToPoint(
       Offset(size.width, cornerRadius),
       radius: const Radius.circular(cornerRadius),
     );
-    
+
     // Right line
     distance = cornerRadius;
     while (distance < size.height - cornerRadius) {
@@ -366,14 +378,14 @@ class DashedBorderPainter extends CustomPainter {
         path.moveTo(size.width, distance);
       }
     }
-    
+
     // Bottom right corner
     path.lineTo(size.width, size.height - cornerRadius);
     path.arcToPoint(
       Offset(size.width - cornerRadius, size.height),
       radius: const Radius.circular(cornerRadius),
     );
-    
+
     // Bottom line
     distance = size.width - cornerRadius;
     while (distance > cornerRadius) {
@@ -383,14 +395,14 @@ class DashedBorderPainter extends CustomPainter {
         path.moveTo(distance, size.height);
       }
     }
-    
+
     // Bottom left corner
     path.lineTo(cornerRadius, size.height);
     path.arcToPoint(
       Offset(0, size.height - cornerRadius),
       radius: const Radius.circular(cornerRadius),
     );
-    
+
     // Left line
     distance = size.height - cornerRadius;
     while (distance > cornerRadius) {
@@ -400,8 +412,8 @@ class DashedBorderPainter extends CustomPainter {
         path.moveTo(0, distance);
       }
     }
-    
-    // Complete the path
+
+    // Complete path
     path.lineTo(0, cornerRadius);
     path.arcToPoint(
       Offset(cornerRadius, 0),
@@ -412,5 +424,5 @@ class DashedBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:buddyapp/utils/app_colors.dart';
-import 'package:buddyapp/utils/app_text_styles.dart';
 import 'package:buddyapp/services/firebase_auth_service.dart';
 import 'package:buddyapp/services/theme_service.dart';
 
@@ -78,16 +76,18 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
               _logout();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: AppColors.white,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
             child: Text(
               'Logout',
-              style: AppTextStyles.bodyMedium
-                  .copyWith(fontWeight: FontWeight.w600, color: Colors.white),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w600, color: Colors.white),
             ),
           ),
         ],
@@ -110,7 +110,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(result['message']),
-              backgroundColor: AppColors.error,
+              backgroundColor: Colors.red,
             ),
           );
         }
@@ -120,7 +120,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to logout. Please try again.'),
-            backgroundColor: AppColors.error,
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -297,16 +297,20 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                             .textTheme
                                             .bodyMedium
                                             ?.copyWith(
-                                              color: AppColors.textOnPrimary,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary,
                                             ),
                                       ),
-                                      backgroundColor: AppColors.primary,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.primary,
                                       duration: const Duration(seconds: 2),
                                     ),
                                   );
                                 }
                               },
-                              activeColor: AppColors.primary,
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
                             ),
                           ],
                         ),
@@ -470,23 +474,26 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: AppColors.error.withOpacity(0.1),
+                                  color: Colors.red.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
                                   Icons.logout,
                                   size: 20,
-                                  color: AppColors.error,
+                                  color: Colors.red,
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
                                   'Log Out',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.error,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.red,
+                                      ),
                                 ),
                               ),
                             ],

@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:buddyapp/utils/app_colors.dart';
-import 'package:buddyapp/utils/app_text_styles.dart';
 import 'package:buddyapp/screens/add_details_screen.dart';
 
 class ReviewPhotosScreen extends StatefulWidget {
@@ -63,23 +61,22 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
         title: Text(
           'Review Photos',
-          style: AppTextStyles.h3.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         centerTitle: true,
       ),
@@ -90,9 +87,13 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
             padding: const EdgeInsets.all(20),
             child: Text(
               'Tap a photo to view full-screen. Delete or retake any shots before proceeding.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.color
+                        ?.withOpacity(0.7),
+                  ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -107,21 +108,27 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
                         Icon(
                           Icons.photo_library_outlined,
                           size: 80,
-                          color: AppColors.grey300,
+                          color: Theme.of(context).hintColor,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No photos captured',
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.color
+                                        ?.withOpacity(0.7),
+                                  ),
                         ),
                       ],
                     ),
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
@@ -137,22 +144,24 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
                             builder: (context) => AlertDialog(
                               title: Text(
                                 'Delete Photo',
-                                style: AppTextStyles.h3.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                               content: Text(
                                 'Are you sure you want to delete this photo?',
-                                style: AppTextStyles.bodyMedium,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
                                   child: Text(
                                     'Cancel',
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ),
                                 TextButton(
@@ -162,10 +171,13 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
                                   },
                                   child: Text(
                                     'Delete',
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: AppColors.error,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                 ),
                               ],
@@ -195,9 +207,9 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
               child: ElevatedButton(
                 onPressed: _photos.isEmpty ? null : _navigateToAddDetails,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  disabledBackgroundColor: AppColors.grey300,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  disabledBackgroundColor: Theme.of(context).disabledColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -205,9 +217,9 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
                 ),
                 child: Text(
                   'Next: Add Details',
-                  style: AppTextStyles.buttonLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ),
             ),
@@ -235,9 +247,9 @@ class FullScreenPhotoView extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.close,
-            color: AppColors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
