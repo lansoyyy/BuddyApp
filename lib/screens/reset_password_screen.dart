@@ -79,14 +79,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).iconTheme.color,
           ),
           onPressed: _navigateBack,
         ),
@@ -102,30 +102,34 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(40),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.lock_reset,
                   size: 40,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 24),
               // Title
               Text(
                 'Reset Password',
-                style: AppTextStyles.h3.copyWith(
-                  color: AppColors.textPrimary,
-                ),
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 12),
               // Description
               Text(
                 'Enter your email address and we\'ll send you a link to reset your password.',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.color
+                          ?.withOpacity(0.7),
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
@@ -143,9 +147,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.done,
                       validator: AppHelpers.validateEmail,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.email_outlined,
-                        color: AppColors.textTertiary,
+                        color: Theme.of(context).hintColor,
                       ),
                       onSubmitted: (_) => _resetPassword(),
                     ),
@@ -166,18 +170,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       children: [
                         Text(
                           'Remember your password? ',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.color
+                                        ?.withOpacity(0.7),
+                                  ),
                         ),
                         TextButton(
                           onPressed: _navigateBack,
                           child: Text(
                             'Sign In',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ),
                       ],
@@ -187,10 +199,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.grey50,
+                        color: Theme.of(context).cardTheme.color,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.grey200,
+                          color: Theme.of(context).dividerColor,
                           width: 1,
                         ),
                       ),
@@ -198,27 +210,34 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.info_outline,
-                                color: AppColors.info,
+                                color: Theme.of(context).colorScheme.primary,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 'Need Help?',
-                                style: AppTextStyles.labelMedium.copyWith(
-                                  color: AppColors.textPrimary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'If you don\'t receive the email within a few minutes, please check your spam folder or contact support.',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.color
+                                          ?.withOpacity(0.7),
+                                    ),
                           ),
                           const SizedBox(height: 12),
                           TextButton(
@@ -229,10 +248,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             },
                             child: Text(
                               'Contact Support',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
                           ),
                         ],

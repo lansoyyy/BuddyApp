@@ -14,6 +14,7 @@ import 'package:buddyapp/screens/help_support_screen.dart';
 import 'package:buddyapp/screens/notifications_screen.dart';
 import 'package:buddyapp/services/firebase_auth_service.dart';
 import 'package:buddyapp/services/storage_service.dart';
+import 'package:buddyapp/services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,10 @@ void main() async {
     name: 'shopbuddy-e017c',
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize theme service
+  await ThemeService.instance.initialize();
+
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -40,28 +45,38 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppConstants.appName,
-      debugShowCheckedModeBanner: AppConstants.isDebugModeEnabled,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light,
-      home: const AuthWrapper(),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
-        '/forgot-password': (context) => const ResetPasswordScreen(),
-        '/terms': (context) => const TermsScreen(),
-        '/privacy': (context) => const PrivacyScreen(),
-        '/dashboard': (context) => const DashboardScreen(),
-        '/help-support': (context) => const HelpSupportScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
-        '/register': (context) => const SignupScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeService.instance.themeModeNotifier,
+      builder: (context, themeMode, child) {
+        return MaterialApp(
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: AppConstants.isDebugModeEnabled,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+          home: const AuthWrapper(),
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/signup': (context) => const SignupScreen(),
+            '/forgot-password': (context) => const ResetPasswordScreen(),
+            '/terms': (context) => const TermsScreen(),
+            '/privacy': (context) => const PrivacyScreen(),
+            '/dashboard': (context) => const DashboardScreen(),
+            '/help-support': (context) => const HelpSupportScreen(),
+            '/notifications': (context) => const NotificationsScreen(),
+            '/register': (context) => const SignupScreen(),
+          },
+        );
       },
     );
   }

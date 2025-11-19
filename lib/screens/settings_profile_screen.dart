@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:buddyapp/utils/app_colors.dart';
 import 'package:buddyapp/utils/app_text_styles.dart';
 import 'package:buddyapp/services/firebase_auth_service.dart';
+import 'package:buddyapp/services/theme_service.dart';
 
 class SettingsProfileScreen extends StatefulWidget {
   const SettingsProfileScreen({super.key});
@@ -20,11 +21,18 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   void initState() {
     super.initState();
     _initializeAuth();
+    _loadThemePreference();
   }
 
   Future<void> _initializeAuth() async {
     _authService = await FirebaseAuthService.getInstance();
     _loadUserData();
+  }
+
+  void _loadThemePreference() {
+    setState(() {
+      _isDarkMode = ThemeService.instance.isDarkMode();
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -43,16 +51,13 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Confirm Logout',
-          style: AppTextStyles.h6.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         content: Text(
           'Are you sure you want to logout? You will need to sign in again to access your account.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -62,10 +67,9 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Cancel',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
           ElevatedButton(
@@ -143,11 +147,11 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: Theme.of(context).cardTheme.color,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadow,
+                    color: Theme.of(context).shadowColor,
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -160,14 +164,14 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: Theme.of(context).primaryColor,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: Icon(
                         Icons.person,
                         size: 32,
-                        color: AppColors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -182,24 +186,22 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                   _userData?['lastName'] != null
                               ? '${_userData!['firstName']} ${_userData!['lastName']}'
                               : 'User',
-                          style: AppTextStyles.h5.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _userData?['email'] ?? 'user@example.com',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 2),
                         Text(
                           _userData?['role'] ?? 'Team Member',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
                     ),
@@ -219,20 +221,19 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                   padding: const EdgeInsets.only(left: 4, bottom: 12),
                   child: Text(
                     'APP SETTINGS',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textTertiary,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
                   ),
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.white,
+                    color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.shadow,
+                        color: Theme.of(context).shadowColor,
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -252,31 +253,58 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: AppColors.grey100,
+                                color: Theme.of(context)
+                                    .dividerColor
+                                    .withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
                                 Icons.dark_mode_outlined,
                                 size: 20,
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).iconTheme.color,
                               ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
                                 'Dark Mode',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textPrimary,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                               ),
                             ),
                             Switch(
                               value: _isDarkMode,
-                              onChanged: (value) {
+                              onChanged: (value) async {
                                 setState(() {
                                   _isDarkMode = value;
                                 });
+                                await ThemeService.instance.setTheme(
+                                  value ? ThemeMode.dark : ThemeMode.light,
+                                );
+                                // Show message to user
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        value
+                                            ? 'Dark mode enabled'
+                                            : 'Light mode enabled',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              color: AppColors.textOnPrimary,
+                                            ),
+                                      ),
+                                      backgroundColor: AppColors.primary,
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
                               },
                               activeColor: AppColors.primary,
                             ),
@@ -286,7 +314,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                       Divider(
                         height: 1,
                         thickness: 1,
-                        color: AppColors.grey200,
+                        color: Theme.of(context).dividerColor,
                       ),
                       // Notifications
                       InkWell(
@@ -303,28 +331,35 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: AppColors.grey100,
+                                  color: Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
                                   Icons.notifications_outlined,
                                   size: 20,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).iconTheme.color,
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
                                   'Notifications',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.textPrimary,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                 ),
                               ),
                               Icon(
                                 Icons.chevron_right,
-                                color: AppColors.textTertiary,
+                                color: Theme.of(context)
+                                    .iconTheme
+                                    .color
+                                    ?.withOpacity(0.5),
                               ),
                             ],
                           ),
@@ -347,20 +382,19 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                   padding: const EdgeInsets.only(left: 4, bottom: 12),
                   child: Text(
                     'ACCOUNT ACTIONS',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textTertiary,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
                   ),
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.white,
+                    color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.shadow,
+                        color: Theme.of(context).shadowColor,
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -383,28 +417,35 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: AppColors.grey100,
+                                  color: Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
                                   Icons.help_outline,
                                   size: 20,
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).iconTheme.color,
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
                                   'Help & Support',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.textPrimary,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                 ),
                               ),
                               Icon(
                                 Icons.chevron_right,
-                                color: AppColors.textTertiary,
+                                color: Theme.of(context)
+                                    .iconTheme
+                                    .color
+                                    ?.withOpacity(0.5),
                               ),
                             ],
                           ),
@@ -413,7 +454,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                       Divider(
                         height: 1,
                         thickness: 1,
-                        color: AppColors.grey200,
+                        color: Theme.of(context).dividerColor,
                       ),
                       // Log Out
                       InkWell(
@@ -429,7 +470,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFEE2E2),
+                                  color: AppColors.error.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(

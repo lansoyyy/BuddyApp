@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:buddyapp/utils/app_colors.dart';
-import 'package:buddyapp/utils/app_text_styles.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -130,37 +128,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
   }
 
-  Color _getNotificationColor(String type) {
+  Color _getNotificationColor(String type, BuildContext context) {
     switch (type) {
       case 'success':
-        return AppColors.success;
+        return Colors.green;
       case 'warning':
         return const Color(0xFFF59E0B);
       case 'error':
-        return AppColors.error;
+        return Colors.red;
       case 'system':
-        return AppColors.textTertiary;
+        return Theme.of(context).hintColor;
       case 'security':
         return const Color(0xFF8B5CF6);
       default:
-        return AppColors.primary;
+        return Theme.of(context).colorScheme.primary;
     }
   }
 
-  Color _getNotificationBgColor(String type) {
+  Color _getNotificationBgColor(String type, BuildContext context) {
     switch (type) {
       case 'success':
-        return const Color(0xFFECFDF5);
+        return Colors.green.withOpacity(0.1);
       case 'warning':
-        return const Color(0xFFFEF3C7);
+        return const Color(0xFFF59E0B).withOpacity(0.1);
       case 'error':
-        return const Color(0xFFFEE2E2);
+        return Colors.red.withOpacity(0.1);
       case 'system':
-        return AppColors.grey100;
+        return Theme.of(context).colorScheme.surface;
       case 'security':
-        return const Color(0xFFF3E8FF);
+        return const Color(0xFF8B5CF6).withOpacity(0.1);
       default:
-        return const Color(0xFFEFF6FF);
+        return Theme.of(context).colorScheme.primary.withOpacity(0.1);
     }
   }
 
@@ -170,30 +168,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final unreadCount = _notifications.where((n) => !n['isRead']).length;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'Notifications',
-          style: AppTextStyles.h5.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           if (unreadCount > 0)
             PopupMenuButton<String>(
-              icon: const Icon(
+              icon: Icon(
                 Icons.more_vert,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).iconTheme.color,
               ),
               onSelected: (value) {
                 if (value == 'mark_all_read') {
@@ -231,7 +228,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         children: [
           // Filter Chips
           Container(
-            color: AppColors.white,
+            color: Theme.of(context).cardTheme.color,
             padding: const EdgeInsets.all(16),
             child: SizedBox(
               height: 40,
@@ -256,14 +253,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         children: [
                           Text(
                             filter,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: isSelected
-                                  ? AppColors.white
-                                  : AppColors.textSecondary,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.color,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                ),
                           ),
                           if (count > 0) ...[
                             const SizedBox(width: 6),
@@ -272,18 +275,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? AppColors.white.withOpacity(0.2)
-                                    : AppColors.grey200,
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary
+                                        .withOpacity(0.2)
+                                    : Theme.of(context).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 count.toString(),
-                                style: AppTextStyles.labelSmall.copyWith(
-                                  color: isSelected
-                                      ? AppColors.white
-                                      : AppColors.textSecondary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: isSelected
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.color,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                             ),
                           ],
@@ -295,8 +309,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           _selectedFilter = filter;
                         });
                       },
-                      backgroundColor: AppColors.grey100,
-                      selectedColor: AppColors.primary,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      selectedColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -334,31 +348,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.grey100,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(40),
             ),
             child: Icon(
               Icons.notifications_none,
               size: 40,
-              color: AppColors.textTertiary,
+              color: Theme.of(context).hintColor,
             ),
           ),
           const SizedBox(height: 24),
           Text(
             'No notifications',
-            style: AppTextStyles.h6.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             _selectedFilter == 'Unread'
                 ? 'You have no unread notifications'
                 : 'No ${_selectedFilter.toLowerCase()} notifications',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.color
+                      ?.withOpacity(0.7),
+                ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -373,14 +390,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isRead ? AppColors.white : _getNotificationBgColor(type),
+        color: isRead
+            ? Theme.of(context).cardTheme.color
+            : _getNotificationBgColor(type, context),
         borderRadius: BorderRadius.circular(12),
         border: isRead
-            ? Border.all(color: AppColors.grey200)
-            : Border.all(color: _getNotificationColor(type).withOpacity(0.3)),
+            ? Border.all(color: Theme.of(context).dividerColor)
+            : Border.all(
+                color: _getNotificationColor(type, context).withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow,
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -406,13 +426,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _getNotificationColor(type).withOpacity(0.1),
+                    color:
+                        _getNotificationColor(type, context).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     notification['icon'],
                     size: 20,
-                    color: _getNotificationColor(type),
+                    color: _getNotificationColor(type, context),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -426,11 +447,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           Expanded(
                             child: Text(
                               notification['title'],
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.textPrimary,
-                                fontWeight:
-                                    isRead ? FontWeight.w500 : FontWeight.bold,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    fontWeight: isRead
+                                        ? FontWeight.w500
+                                        : FontWeight.bold,
+                                  ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -440,7 +464,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: _getNotificationColor(type),
+                                color: _getNotificationColor(type, context),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -449,9 +473,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       const SizedBox(height: 4),
                       Text(
                         notification['message'],
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.color
+                                  ?.withOpacity(0.7),
+                            ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -460,16 +488,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         children: [
                           Text(
                             notification['time'],
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textTertiary,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: Theme.of(context).hintColor,
+                                ),
                           ),
                           const Spacer(),
                           PopupMenuButton<String>(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.more_horiz,
                               size: 20,
-                              color: AppColors.textTertiary,
+                              color: Theme.of(context).hintColor,
                             ),
                             onSelected: (value) {
                               if (value == 'delete') {
@@ -512,24 +543,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: _getNotificationColor(notification['type'])
+                color: _getNotificationColor(notification['type'], context)
                     .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 notification['icon'],
                 size: 18,
-                color: _getNotificationColor(notification['type']),
+                color: _getNotificationColor(notification['type'], context),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 notification['title'],
-                style: AppTextStyles.h6.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
           ],
@@ -540,16 +570,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           children: [
             Text(
               notification['message'],
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.color
+                        ?.withOpacity(0.7),
+                  ),
             ),
             const SizedBox(height: 16),
             Text(
               notification['time'],
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textTertiary,
-              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
             ),
           ],
         ),
@@ -561,9 +595,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Close',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         ],
@@ -577,16 +609,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Clear All Notifications',
-          style: AppTextStyles.h6.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         content: Text(
           'Are you sure you want to clear all notifications? This action cannot be undone.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.color
+                    ?.withOpacity(0.7),
+              ),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -596,9 +631,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Cancel',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
           ElevatedButton(
@@ -607,14 +640,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               _clearAllNotifications();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: AppColors.white,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
             ),
             child: Text(
               'Clear All',
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ),
         ],

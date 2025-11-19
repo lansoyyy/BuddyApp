@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:buddyapp/utils/app_colors.dart';
-import 'package:buddyapp/utils/app_text_styles.dart';
 import 'package:buddyapp/widgets/custom_button.dart';
 
 class HelpSupportScreen extends StatefulWidget {
@@ -105,10 +103,9 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Contact Support',
-          style: AppTextStyles.h6.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -118,16 +115,16 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                 controller: nameController,
                 decoration: InputDecoration(
                   labelText: 'Your Name',
-                  labelStyle: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).hintColor,
+                      ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ),
@@ -136,16 +133,16 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).hintColor,
+                      ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ),
@@ -155,16 +152,16 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                 maxLines: 4,
                 decoration: InputDecoration(
                   labelText: 'Message',
-                  labelStyle: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).hintColor,
+                      ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ),
@@ -176,9 +173,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Cancel',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
           ElevatedButton(
@@ -189,23 +184,23 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                 SnackBar(
                   content: Text(
                     'Support ticket submitted successfully!',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.white,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                   ),
-                  backgroundColor: AppColors.success,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.white,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             child: Text(
               'Send',
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ),
         ],
@@ -216,21 +211,20 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'Help & Support',
-          style: AppTextStyles.h5.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -243,11 +237,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             // Search Bar
             Container(
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: Theme.of(context).cardTheme.color,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadow,
+                    color: Theme.of(context).shadowColor.withOpacity(0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -258,12 +252,12 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                 onChanged: (value) => setState(() {}),
                 decoration: InputDecoration(
                   hintText: 'Search for help...',
-                  hintStyle: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textTertiary,
-                  ),
-                  prefixIcon: const Icon(
+                  hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).hintColor,
+                      ),
+                  prefixIcon: Icon(
                     Icons.search,
-                    color: AppColors.textTertiary,
+                    color: Theme.of(context).hintColor,
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
@@ -274,10 +268,9 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             // Categories
             Text(
               'Categories',
-              style: AppTextStyles.h6.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -295,13 +288,17 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     child: FilterChip(
                       label: Text(
                         category,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: isSelected
-                              ? AppColors.white
-                              : AppColors.textSecondary,
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.normal,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.onPrimary
+                                  : Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                            ),
                       ),
                       selected: isSelected,
                       onSelected: (selected) {
@@ -309,8 +306,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                           _selectedCategory = category;
                         });
                       },
-                      backgroundColor: AppColors.grey100,
-                      selectedColor: AppColors.primary,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      selectedColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -323,10 +320,9 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             // FAQ Section
             Text(
               'Frequently Asked Questions',
-              style: AppTextStyles.h6.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16),
             ..._filteredFAQs.asMap().entries.map((entry) {
@@ -337,11 +333,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: Theme.of(context).cardTheme.color,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.shadow,
+                      color: Theme.of(context).shadowColor.withOpacity(0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -352,16 +348,15 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     ListTile(
                       title: Text(
                         item['question'],
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                       trailing: Icon(
                         item['isExpanded']
                             ? Icons.expand_less
                             : Icons.expand_more,
-                        color: AppColors.textTertiary,
+                        color: Theme.of(context).iconTheme.color,
                       ),
                       onTap: () => _toggleFAQ(originalIndex),
                     ),
@@ -370,9 +365,14 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                         padding: const EdgeInsets.all(16),
                         child: Text(
                           item['answer'],
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.color
+                                        ?.withOpacity(0.7),
+                                  ),
                         ),
                       ),
                   ],
@@ -397,11 +397,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: Theme.of(context).cardTheme.color,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadow,
+                    color: Theme.of(context).shadowColor.withOpacity(0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -412,10 +412,9 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                 children: [
                   Text(
                     'Other Ways to Get Help',
-                    style: AppTextStyles.h6.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 16),
                   _buildHelpOption(
@@ -471,13 +470,13 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.grey100,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
                 size: 20,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(width: 16),
@@ -487,24 +486,27 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                 children: [
                   Text(
                     title,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.color
+                              ?.withOpacity(0.7),
+                        ),
                   ),
                 ],
               ),
             ),
             Icon(
               Icons.chevron_right,
-              color: AppColors.textTertiary,
+              color: Theme.of(context).iconTheme.color,
             ),
           ],
         ),

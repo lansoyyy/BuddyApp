@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:buddyapp/utils/app_colors.dart';
-import 'package:buddyapp/utils/app_text_styles.dart';
 import 'package:buddyapp/screens/settings_profile_screen.dart';
 import 'package:buddyapp/screens/camera_capture_screen.dart';
 
@@ -19,7 +18,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -27,10 +26,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Title
             Text(
               'Dashboard',
-              style: AppTextStyles.h3.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 24),
             // Tab Bar
@@ -38,11 +36,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: Theme.of(context).cardTheme.color,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.shadow,
+                      color: Theme.of(context).shadowColor,
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -60,18 +58,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           decoration: BoxDecoration(
-                            color:
-                                index == 0 ? AppColors.white : AppColors.grey50,
+                            color: index == 0
+                                ? Theme.of(context).cardTheme.color
+                                : Theme.of(context).scaffoldBackgroundColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             'Choose Job Workorder',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: index == 0
-                                  ? AppColors.textPrimary
-                                  : AppColors.textSecondary,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: index == 0
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.color,
+                                ),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -88,18 +93,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           decoration: BoxDecoration(
                             color: index == 1
-                                ? AppColors.white
-                                : AppColors.grey100,
+                                ? Theme.of(context).cardTheme.color
+                                : Theme.of(context).scaffoldBackgroundColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             'Settings/Profile',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: index == 1
-                                  ? AppColors.textPrimary
-                                  : AppColors.textSecondary,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: index == 1
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.color,
+                                ),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -118,11 +129,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.white,
+                        color: Theme.of(context).cardTheme.color,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.shadow,
+                            color: Theme.of(context).shadowColor,
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -134,10 +145,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           // Workorder Number Field
                           Text(
                             'Workorder Number (Folder)',
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                           const SizedBox(height: 12),
                           Container(
@@ -146,10 +159,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.grey50,
+                              color: Theme.of(context)
+                                  .inputDecorationTheme
+                                  .fillColor,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: AppColors.border,
+                                color: Theme.of(context).dividerColor,
                                 width: 1,
                               ),
                             ),
@@ -158,24 +173,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 value: _selectedWorkorder,
                                 hint: Text(
                                   'Select Workorder...',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.textTertiary,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context).hintColor,
+                                      ),
                                 ),
                                 isExpanded: true,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.keyboard_arrow_down,
-                                  color: AppColors.textTertiary,
+                                  color: Theme.of(context).iconTheme.color,
                                 ),
+                                dropdownColor:
+                                    Theme.of(context).cardTheme.color,
                                 items: ['WO-12345', 'WO-12346', 'WO-12347']
                                     .map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
                                     child: Text(
                                       value,
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: AppColors.textPrimary,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium,
                                     ),
                                   );
                                 }).toList(),
@@ -191,10 +211,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           // Component Field
                           Text(
                             'Component (Part)',
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                           const SizedBox(height: 12),
                           Container(
@@ -203,10 +225,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.grey50,
+                              color: Theme.of(context)
+                                  .inputDecorationTheme
+                                  .fillColor,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: AppColors.border,
+                                color: Theme.of(context).dividerColor,
                                 width: 1,
                               ),
                             ),
@@ -215,15 +239,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 value: _selectedComponent,
                                 hint: Text(
                                   'Select Component...',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.textTertiary,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context).hintColor,
+                                      ),
                                 ),
                                 isExpanded: true,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.keyboard_arrow_down,
-                                  color: AppColors.textTertiary,
+                                  color: Theme.of(context).iconTheme.color,
                                 ),
+                                dropdownColor:
+                                    Theme.of(context).cardTheme.color,
                                 items: [
                                   'Turbine Blade',
                                   'Gearbox Assembly',
@@ -233,9 +262,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     value: value,
                                     child: Text(
                                       value,
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: AppColors.textPrimary,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium,
                                     ),
                                   );
                                 }).toList(),
@@ -251,10 +280,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           // Process Stage Field
                           Text(
                             'Process Stage',
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                           const SizedBox(height: 12),
                           Container(
@@ -263,10 +294,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.grey50,
+                              color: Theme.of(context)
+                                  .inputDecorationTheme
+                                  .fillColor,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: AppColors.border,
+                                color: Theme.of(context).dividerColor,
                                 width: 1,
                               ),
                             ),
@@ -275,15 +308,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 value: _selectedProcessStage,
                                 hint: Text(
                                   'Select Process Stage...',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.textTertiary,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context).hintColor,
+                                      ),
                                 ),
                                 isExpanded: true,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.keyboard_arrow_down,
-                                  color: AppColors.textTertiary,
+                                  color: Theme.of(context).iconTheme.color,
                                 ),
+                                dropdownColor:
+                                    Theme.of(context).cardTheme.color,
                                 items: [
                                   'Visual Crack Detection',
                                   'Dimensional Inspection',
@@ -293,9 +331,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     value: value,
                                     child: Text(
                                       value,
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: AppColors.textPrimary,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium,
                                     ),
                                   );
                                 }).toList(),
@@ -340,9 +378,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           SnackBar(
                             content: Text(
                               'Please select all fields before starting',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.white,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                  ),
                             ),
                             backgroundColor: AppColors.error,
                           ),
@@ -363,13 +404,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Icon(
                           Icons.camera_alt,
                           size: 20,
+                          color: Colors.white,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Start Capturing',
-                          style: AppTextStyles.buttonLarge.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
                         ),
                       ],
                     ),
