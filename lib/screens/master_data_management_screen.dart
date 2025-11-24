@@ -216,6 +216,7 @@ class _MasterDataManagementScreenState
         appBar: AppBar(
           title: const Text('Manage Master Data'),
           bottom: const TabBar(
+            labelColor: Colors.white,
             tabs: [
               Tab(text: 'Work Orders'),
               Tab(text: 'Components/Equipment'),
