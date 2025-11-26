@@ -105,7 +105,7 @@ class CustomButton extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              style: textStyle,
+              style: textStyle.copyWith(color: Colors.blue),
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
             ),

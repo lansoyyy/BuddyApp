@@ -311,13 +311,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       icon: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset(
-                            'assets/images/google_logo.png',
-                            width: 20,
-                            height: 20,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.error, size: 20);
-                            },
+                          Icon(
+                            Icons.g_mobiledata,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 25,
                           ),
                           const SizedBox(width: 12),
                         ],

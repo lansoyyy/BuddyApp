@@ -218,8 +218,7 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
                 child: Text(
                   'Next: Add Details',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      fontWeight: FontWeight.w600, color: Colors.white),
                 ),
               ),
             ),

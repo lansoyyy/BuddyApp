@@ -333,8 +333,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
                       child: Text(
                         'View Files',
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                     ),
                   ),

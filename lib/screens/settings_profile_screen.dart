@@ -318,54 +318,54 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                       color: Theme.of(context).dividerColor,
                     ),
                     // Notifications
-                    InkWell(
-                      onTap: _navigateToNotifications,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .dividerColor
-                                    .withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.notifications_outlined,
-                                size: 20,
-                                color: Theme.of(context).iconTheme.color,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                'Notifications',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                              ),
-                            ),
-                            Icon(
-                              Icons.chevron_right,
-                              color: Theme.of(context)
-                                  .iconTheme
-                                  .color
-                                  ?.withOpacity(0.5),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    // InkWell(
+                    //   onTap: _navigateToNotifications,
+                    //   borderRadius: BorderRadius.circular(8),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 20,
+                    //       vertical: 16,
+                    //     ),
+                    //     child: Row(
+                    //       children: [
+                    //         Container(
+                    //           width: 40,
+                    //           height: 40,
+                    //           decoration: BoxDecoration(
+                    //             color: Theme.of(context)
+                    //                 .dividerColor
+                    //                 .withOpacity(0.1),
+                    //             borderRadius: BorderRadius.circular(8),
+                    //           ),
+                    //           child: Icon(
+                    //             Icons.notifications_outlined,
+                    //             size: 20,
+                    //             color: Theme.of(context).iconTheme.color,
+                    //           ),
+                    //         ),
+                    //         const SizedBox(width: 16),
+                    //         Expanded(
+                    //           child: Text(
+                    //             'Notifications',
+                    //             style: Theme.of(context)
+                    //                 .textTheme
+                    //                 .bodyMedium
+                    //                 ?.copyWith(
+                    //                   fontWeight: FontWeight.w500,
+                    //                 ),
+                    //           ),
+                    //         ),
+                    //         Icon(
+                    //           Icons.chevron_right,
+                    //           color: Theme.of(context)
+                    //               .iconTheme
+                    //               .color
+                    //               ?.withOpacity(0.5),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     // Google Drive Connection
                     ValueListenableBuilder<String?>(
                       valueListenable:

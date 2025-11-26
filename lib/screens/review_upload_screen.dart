@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/uploading_photos_screen.dart';
-import 'package:buddyapp/services/google_auth_service.dart';
 
 class ReviewUploadScreen extends StatelessWidget {
   final List<String> photos;
@@ -41,8 +40,6 @@ class ReviewUploadScreen extends StatelessWidget {
           description: description,
           inspectionStatus: inspectionStatus,
           urgencyLevel: urgencyLevel,
-          driveAccessToken:
-              GoogleAuthService.instance.currentDriveAccessToken ?? '',
         ),
       ),
     );
@@ -50,13 +47,6 @@ class ReviewUploadScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mock task data
-    final tasks = [
-      {'name': 'Check Foundation', 'image': photos.isNotEmpty ? photos[0] : ''},
-      {'name': 'Inspect Wiring', 'image': photos.length > 1 ? photos[1] : ''},
-      {'name': 'Verify Plumbing', 'image': photos.length > 2 ? photos[2] : ''},
-    ];
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -166,7 +156,7 @@ class ReviewUploadScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '${tasks.length}',
+                            '${photos.length}',
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineLarge
@@ -210,9 +200,9 @@ class ReviewUploadScreen extends StatelessWidget {
                   mainAxisSpacing: 8,
                   childAspectRatio: 0.85,
                 ),
-                itemCount: tasks.length,
+                itemCount: photos.length,
                 itemBuilder: (context, index) {
-                  final task = tasks[index];
+                  final imagePath = photos[index];
                   return Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardTheme.color,
@@ -232,9 +222,9 @@ class ReviewUploadScreen extends StatelessWidget {
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(12),
                           ),
-                          child: task['image'] != ''
+                          child: imagePath.isNotEmpty
                               ? Image.file(
-                                  File(task['image'] as String),
+                                  File(imagePath),
                                   width: double.infinity,
                                   height: 140,
                                   fit: BoxFit.cover,
@@ -274,7 +264,7 @@ class ReviewUploadScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Task: ${task['name']}',
+                                'Photo ${index + 1}',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
@@ -338,12 +328,20 @@ class ReviewUploadScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildDetailRow(context, 'Project ID:', 'ALPHA-SITE-123'),
+                    _buildDetailRow(context, 'Work Order:', workorderNumber),
+                    const SizedBox(height: 12),
+                    _buildDetailRow(context, 'Component:', component),
+                    const SizedBox(height: 12),
+                    _buildDetailRow(context, 'Stage:', processStage),
                     const SizedBox(height: 12),
                     _buildDetailRow(
-                        context, 'Location:', '123 Main St, Anytown'),
+                        context, 'Inspection Status:', inspectionStatus),
                     const SizedBox(height: 12),
-                    _buildDetailRow(context, 'Inspector:', 'Jane Doe'),
+                    _buildDetailRow(context, 'Urgency Level:', urgencyLevel),
+                    if (description.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      _buildDetailRow(context, 'Description:', description),
+                    ],
                   ],
                 ),
               ),
@@ -372,8 +370,7 @@ class ReviewUploadScreen extends StatelessWidget {
                       child: Text(
                         'Confirm & Upload',
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                     ),
                   ),
