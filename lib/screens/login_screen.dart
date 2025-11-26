@@ -11,6 +11,7 @@ import 'package:buddyapp/services/firebase_auth_service.dart';
 import 'package:buddyapp/screens/signup_screen.dart';
 import 'package:buddyapp/screens/reset_password_screen.dart';
 import 'package:buddyapp/screens/dashboard_screen.dart';
+import 'package:buddyapp/services/google_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -289,9 +290,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Google Sign In Button
                     CustomButton(
                       text: 'Sign in with Google',
-                      onPressed: () {
-                        // TODO: Implement Google Sign-In
-                        AppHelpers.showErrorToast('Google Sign-In coming soon');
+                      onPressed: () async {
+                        final token =
+                            await GoogleAuthService.instance.signInForDrive();
+                        if (token == null) {
+                          AppHelpers.showErrorToast(
+                              'Google sign-in was cancelled or failed');
+                        } else {
+                          AppHelpers.showSuccessToast(
+                              'Google Drive connected for uploads');
+                          if (mounted) {
+                            Navigator.of(context).pushReplacementNamed(
+                                AppConstants.dashboardRoute);
+                          }
+                        }
                       },
                       isFullWidth: true,
                       type: ButtonType.outline,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:buddyapp/services/firebase_auth_service.dart';
 import 'package:buddyapp/services/theme_service.dart';
+import 'package:buddyapp/services/google_auth_service.dart';
 
 class SettingsProfileScreen extends StatefulWidget {
   const SettingsProfileScreen({super.key});
@@ -364,6 +365,110 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                           ],
                         ),
                       ),
+                    ),
+                    // Google Drive Connection
+                    ValueListenableBuilder<String?>(
+                      valueListenable:
+                          GoogleAuthService.instance.driveAccessTokenNotifier,
+                      builder: (context, token, _) {
+                        final isConnected = token != null && token.isNotEmpty;
+                        return InkWell(
+                          onTap: () async {
+                            if (isConnected) {
+                              await GoogleAuthService.instance.signOut();
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Disconnected from Google Drive'),
+                                  ),
+                                );
+                              }
+                            } else {
+                              final newToken = await GoogleAuthService.instance
+                                  .signInForDrive();
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(newToken == null
+                                        ? 'Google sign-in was cancelled or failed'
+                                        : 'Google Drive connected for uploads'),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .dividerColor
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.cloud_done_outlined,
+                                    size: 20,
+                                    color: Theme.of(context).iconTheme.color,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Google Drive',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        isConnected
+                                            ? 'Connected for photo uploads'
+                                            : 'Not connected',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color:
+                                                  Theme.of(context).hintColor,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  isConnected ? 'Disconnect' : 'Connect',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

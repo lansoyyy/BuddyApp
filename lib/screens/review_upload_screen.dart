@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/uploading_photos_screen.dart';
+import 'package:buddyapp/services/google_auth_service.dart';
 
 class ReviewUploadScreen extends StatelessWidget {
   final List<String> photos;
@@ -33,6 +34,15 @@ class ReviewUploadScreen extends StatelessWidget {
         builder: (context) => UploadingPhotosScreen(
           photos: photos,
           workorderNumber: workorderNumber,
+          component: component,
+          processStage: processStage,
+          project: project,
+          componentPart: componentPart,
+          description: description,
+          inspectionStatus: inspectionStatus,
+          urgencyLevel: urgencyLevel,
+          driveAccessToken:
+              GoogleAuthService.instance.currentDriveAccessToken ?? '',
         ),
       ),
     );

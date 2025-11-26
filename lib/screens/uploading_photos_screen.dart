@@ -1,16 +1,32 @@
 import 'dart:io';
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/dashboard_screen.dart';
+import 'package:buddyapp/services/google_drive_service.dart';
 
 class UploadingPhotosScreen extends StatefulWidget {
   final List<String> photos;
   final String workorderNumber;
+  final String component;
+  final String processStage;
+  final String project;
+  final String componentPart;
+  final String description;
+  final String inspectionStatus;
+  final String urgencyLevel;
+  final String driveAccessToken;
 
   const UploadingPhotosScreen({
     super.key,
     required this.photos,
     required this.workorderNumber,
+    required this.component,
+    required this.processStage,
+    required this.project,
+    required this.componentPart,
+    required this.description,
+    required this.inspectionStatus,
+    required this.urgencyLevel,
+    this.driveAccessToken = '',
   });
 
   @override
@@ -22,12 +38,15 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   int _currentUploadIndex = 0;
   final List<UploadStatus> _uploadStatuses = [];
   bool _isCancelled = false;
-  Timer? _uploadTimer;
+  GoogleDriveService? _driveService;
 
   @override
   void initState() {
     super.initState();
     _initializeUploadStatuses();
+    if (widget.driveAccessToken.isNotEmpty) {
+      _driveService = GoogleDriveService(accessToken: widget.driveAccessToken);
+    }
     _startUpload();
   }
 
@@ -43,73 +62,115 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
     }
   }
 
-  void _startUpload() {
-    _uploadTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+  Future<void> _startUpload() async {
+    if (_uploadStatuses.isEmpty) {
+      return;
+    }
+
+    if (_driveService == null) {
+      for (int i = 0; i < _uploadStatuses.length; i++) {
+        if (_isCancelled) {
+          break;
+        }
+        setState(() {
+          _currentUploadIndex = i;
+          _uploadStatuses[i].status = 'failed';
+          _uploadStatuses[i].progress = 1.0;
+          _recalculateOverallProgress();
+        });
+      }
+      return;
+    }
+
+    for (int i = 0; i < _uploadStatuses.length; i++) {
       if (_isCancelled) {
-        timer.cancel();
-        return;
+        break;
       }
 
+      final status = _uploadStatuses[i];
       setState(() {
-        if (_currentUploadIndex < _uploadStatuses.length) {
-          // Update current photo progress
-          if (_uploadStatuses[_currentUploadIndex].progress < 1.0) {
-            _uploadStatuses[_currentUploadIndex].progress += 0.02;
-            _uploadStatuses[_currentUploadIndex].status = 'uploading';
-
-            if (_uploadStatuses[_currentUploadIndex].progress >= 1.0) {
-              _uploadStatuses[_currentUploadIndex].progress = 1.0;
-              // Randomly set some as failed for demo
-              if (_currentUploadIndex == 2) {
-                _uploadStatuses[_currentUploadIndex].status = 'failed';
-              } else {
-                _uploadStatuses[_currentUploadIndex].status = 'completed';
-              }
-              _currentUploadIndex++;
-            }
-          }
-        } else {
-          // All uploads complete
-          timer.cancel();
-        }
-
-        // Calculate overall progress
-        double totalProgress = 0;
-        for (var status in _uploadStatuses) {
-          totalProgress += status.progress;
-        }
-        _overallProgress = totalProgress / _uploadStatuses.length;
+        _currentUploadIndex = i;
+        status.status = 'uploading';
+        status.progress = 0.0;
       });
-    });
+
+      try {
+        await _driveService!.uploadPhoto(
+          localPath: status.photoPath,
+          fileName: status.fileName,
+          workorderNumber: widget.workorderNumber,
+          component: widget.component,
+          processStage: widget.processStage,
+          project: widget.project,
+          componentPart: widget.componentPart,
+          description: widget.description,
+          inspectionStatus: widget.inspectionStatus,
+          urgencyLevel: widget.urgencyLevel,
+        );
+
+        setState(() {
+          status.progress = 1.0;
+          status.status = 'completed';
+          _recalculateOverallProgress();
+        });
+      } catch (e, st) {
+        debugPrint('Drive upload failed for ${status.fileName}: $e');
+        debugPrint('$st');
+        setState(() {
+          status.progress = 1.0;
+          status.status = 'failed';
+          _recalculateOverallProgress();
+        });
+      }
+    }
   }
 
   void _cancelUpload() {
     setState(() {
       _isCancelled = true;
     });
-    _uploadTimer?.cancel();
     Navigator.pop(context);
   }
 
-  void _retryFailedUpload(int index) {
+  Future<void> _retryFailedUpload(int index) async {
+    if (_driveService == null || _isCancelled) {
+      return;
+    }
+
+    final status = _uploadStatuses[index];
     setState(() {
-      _uploadStatuses[index].status = 'uploading';
-      _uploadStatuses[index].progress = 0.0;
+      status.status = 'uploading';
+      status.progress = 0.0;
     });
 
-    Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      if (_uploadStatuses[index].progress < 1.0) {
-        setState(() {
-          _uploadStatuses[index].progress += 0.02;
-        });
-      } else {
-        setState(() {
-          _uploadStatuses[index].progress = 1.0;
-          _uploadStatuses[index].status = 'completed';
-        });
-        timer.cancel();
-      }
-    });
+    try {
+      await _driveService!.uploadPhoto(
+        localPath: status.photoPath,
+        fileName: status.fileName,
+        workorderNumber: widget.workorderNumber,
+        component: widget.component,
+        processStage: widget.processStage,
+        project: widget.project,
+        componentPart: widget.componentPart,
+        description: widget.description,
+        inspectionStatus: widget.inspectionStatus,
+        urgencyLevel: widget.urgencyLevel,
+      );
+
+      setState(() {
+        status.progress = 1.0;
+        status.status = 'completed';
+        _recalculateOverallProgress();
+      });
+    } catch (e, st) {
+      debugPrint('Drive re-upload failed for ${status.fileName}: $e');
+      debugPrint('$st');
+      setState(() {
+        status.progress = 1.0;
+        status.status = 'failed';
+        _recalculateOverallProgress();
+      });
+    }
   }
 
   void _viewFiles() {
@@ -122,8 +183,20 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
 
   @override
   void dispose() {
-    _uploadTimer?.cancel();
     super.dispose();
+  }
+
+  void _recalculateOverallProgress() {
+    if (_uploadStatuses.isEmpty) {
+      _overallProgress = 0.0;
+      return;
+    }
+
+    double totalProgress = 0;
+    for (final status in _uploadStatuses) {
+      totalProgress += status.progress;
+    }
+    _overallProgress = totalProgress / _uploadStatuses.length;
   }
 
   @override
