@@ -331,7 +331,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
                         ),
                       ),
                       child: Text(
-                        'View Files',
+                        'Done',
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             fontWeight: FontWeight.w600, color: Colors.white),
                       ),

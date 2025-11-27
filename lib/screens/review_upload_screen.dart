@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:buddyapp/services/google_auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/uploading_photos_screen.dart';
 
@@ -26,7 +27,53 @@ class ReviewUploadScreen extends StatelessWidget {
     required this.urgencyLevel,
   });
 
-  void _confirmUpload(BuildContext context) {
+  Future<void> _confirmUpload(BuildContext context) async {
+    var token = GoogleAuthService.instance.currentDriveAccessToken;
+
+    if (token == null || token.isEmpty) {
+      final shouldConnect = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Google Drive not connected'),
+            content: const Text(
+              'To upload photos, please connect Google Drive for this account.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Connect now'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (shouldConnect != true) {
+        return;
+      }
+
+      // Try to connect Google Drive
+      token = await GoogleAuthService.instance.signInForDrive();
+      if (token == null || token.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text('Google Drive connection is required to upload photos.'),
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    if (!context.mounted) return;
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -40,6 +87,7 @@ class ReviewUploadScreen extends StatelessWidget {
           description: description,
           inspectionStatus: inspectionStatus,
           urgencyLevel: urgencyLevel,
+          driveAccessToken: token ?? '',
         ),
       ),
     );
