@@ -245,7 +245,7 @@ class AppHelpers {
       return 'Work order is required';
     }
     if (!isValidWorkOrder(value)) {
-      return 'Please enter a valid work order (e.g., ABC-1234)';
+      return 'Please enter a valid work order using letters, numbers, and dashes.';
     }
     return null;
   }

@@ -8,6 +8,7 @@ class MasterDataService {
   static const String _workordersKey = 'master_workorders';
   static const String _componentsKey = 'master_components';
   static const String _processStagesKey = 'master_process_stages';
+  static const String _componentStampsKey = 'master_component_stamps';
 
   MasterDataService._(this._storage);
 
@@ -92,5 +93,25 @@ class MasterDataService {
     final list = await getProcessStages();
     list.remove(value);
     await _setList(_processStagesKey, list);
+  }
+
+  Future<List<String>> getComponentStamps() {
+    return _getList(_componentStampsKey);
+  }
+
+  Future<void> addComponentStamp(String value) async {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    final list = await getComponentStamps();
+    if (!list.contains(trimmed)) {
+      list.add(trimmed);
+      await _setList(_componentStampsKey, list);
+    }
+  }
+
+  Future<void> removeComponentStamp(String value) async {
+    final list = await getComponentStamps();
+    list.remove(value);
+    await _setList(_componentStampsKey, list);
   }
 }

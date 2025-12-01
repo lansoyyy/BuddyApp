@@ -7,6 +7,7 @@ class ReviewPhotosScreen extends StatefulWidget {
   final String workorderNumber;
   final String component;
   final String processStage;
+  final String componentStamp;
 
   const ReviewPhotosScreen({
     super.key,
@@ -14,6 +15,7 @@ class ReviewPhotosScreen extends StatefulWidget {
     required this.workorderNumber,
     required this.component,
     required this.processStage,
+    required this.componentStamp,
   });
 
   @override
@@ -53,6 +55,7 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
           workorderNumber: widget.workorderNumber,
           component: widget.component,
           processStage: widget.processStage,
+          componentStamp: widget.componentStamp,
         ),
       ),
     );

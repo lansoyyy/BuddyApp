@@ -179,7 +179,7 @@ class AppConstants {
   static const String phonePattern = r'^[+]?[0-9]{10,15}$';
   static const String passwordPattern =
       r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$';
-  static const String workOrderPattern = r'^[A-Z]{2,4}-\d{4,6}$';
+  static const String workOrderPattern = r'^[A-Za-z0-9-]+$';
 
   // Notification Channels
   static const String uploadNotificationChannel = 'upload_channel';

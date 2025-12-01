@@ -21,10 +21,13 @@ class _MasterDataManagementScreenState
   final TextEditingController _workorderController = TextEditingController();
   final TextEditingController _componentController = TextEditingController();
   final TextEditingController _stageController = TextEditingController();
+  final TextEditingController _componentStampController =
+      TextEditingController();
 
   List<String> _workorders = [];
   List<String> _components = [];
   List<String> _stages = [];
+  List<String> _componentStamps = [];
 
   @override
   void initState() {
@@ -37,6 +40,7 @@ class _MasterDataManagementScreenState
     final workorders = await service.getWorkorders();
     final components = await service.getComponents();
     final stages = await service.getProcessStages();
+    final componentStamps = await service.getComponentStamps();
 
     if (!mounted) return;
 
@@ -45,6 +49,7 @@ class _MasterDataManagementScreenState
       _workorders = workorders;
       _components = components;
       _stages = stages;
+      _componentStamps = componentStamps;
       _isLoading = false;
     });
   }
@@ -54,6 +59,7 @@ class _MasterDataManagementScreenState
     _workorderController.dispose();
     _componentController.dispose();
     _stageController.dispose();
+    _componentStampController.dispose();
     super.dispose();
   }
 
@@ -109,6 +115,30 @@ class _MasterDataManagementScreenState
     setState(() {
       _stages = updated;
       _stageController.clear();
+    });
+  }
+
+  Future<void> _addComponentStamp() async {
+    final value = _componentStampController.text.trim();
+    if (value.isEmpty) {
+      _showError('Component stamp is required');
+      return;
+    }
+    await _masterDataService.addComponentStamp(value);
+    final updated = await _masterDataService.getComponentStamps();
+    if (!mounted) return;
+    setState(() {
+      _componentStamps = updated;
+      _componentStampController.clear();
+    });
+  }
+
+  Future<void> _removeComponentStamp(String value) async {
+    await _masterDataService.removeComponentStamp(value);
+    final updated = await _masterDataService.getComponentStamps();
+    if (!mounted) return;
+    setState(() {
+      _componentStamps = updated;
     });
   }
 
@@ -210,8 +240,8 @@ class _MasterDataManagementScreenState
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
-      initialIndex: widget.initialTabIndex.clamp(0, 2),
+      length: 4,
+      initialIndex: widget.initialTabIndex.clamp(0, 3),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Manage Master Data'),
@@ -221,6 +251,7 @@ class _MasterDataManagementScreenState
               Tab(text: 'Work Orders'),
               Tab(text: 'Components/Equipment'),
               Tab(text: 'Process Stages'),
+              Tab(text: 'Component Stamps'),
             ],
           ),
         ),
@@ -230,7 +261,8 @@ class _MasterDataManagementScreenState
                 children: [
                   _buildListTab(
                     title: 'Work Orders',
-                    hintText: 'e.g. ABC-1234',
+                    hintText:
+                        'Enter work order (e.g. ABC-1234, JOB01, 2025-0001)',
                     emptyText:
                         'No work orders yet. Add work orders to select them on the dashboard.',
                     controller: _workorderController,
@@ -257,6 +289,16 @@ class _MasterDataManagementScreenState
                     onAdd: _addStage,
                     items: _stages,
                     onDelete: _removeStage,
+                  ),
+                  _buildListTab(
+                    title: 'Component Stamps',
+                    hintText: 'e.g. Piston A, Cylinder 1',
+                    emptyText:
+                        'No component stamps yet. Add stamps to differentiate sets (A, B, 1, 2, etc.).',
+                    controller: _componentStampController,
+                    onAdd: _addComponentStamp,
+                    items: _componentStamps,
+                    onDelete: _removeComponentStamp,
                   ),
                 ],
               ),

@@ -10,6 +10,7 @@ class ReviewUploadScreen extends StatelessWidget {
   final String processStage;
   final String project;
   final String componentPart;
+  final String componentStamp;
   final String description;
   final String inspectionStatus;
   final String urgencyLevel;
@@ -22,6 +23,7 @@ class ReviewUploadScreen extends StatelessWidget {
     required this.processStage,
     required this.project,
     required this.componentPart,
+    required this.componentStamp,
     required this.description,
     required this.inspectionStatus,
     required this.urgencyLevel,
@@ -84,6 +86,7 @@ class ReviewUploadScreen extends StatelessWidget {
           processStage: processStage,
           project: project,
           componentPart: componentPart,
+          componentStamp: componentStamp,
           description: description,
           inspectionStatus: inspectionStatus,
           urgencyLevel: urgencyLevel,
@@ -379,6 +382,9 @@ class ReviewUploadScreen extends StatelessWidget {
                     _buildDetailRow(context, 'Work Order:', workorderNumber),
                     const SizedBox(height: 12),
                     _buildDetailRow(context, 'Component:', component),
+                    const SizedBox(height: 12),
+                    _buildDetailRow(
+                        context, 'Component Stamp:', componentStamp),
                     const SizedBox(height: 12),
                     _buildDetailRow(context, 'Stage:', processStage),
                     const SizedBox(height: 12),

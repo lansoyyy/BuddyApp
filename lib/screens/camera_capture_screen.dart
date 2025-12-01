@@ -6,12 +6,14 @@ class CameraCaptureScreen extends StatefulWidget {
   final String workorderNumber;
   final String component;
   final String processStage;
+  final String componentStamp;
 
   const CameraCaptureScreen({
     super.key,
     required this.workorderNumber,
     required this.component,
     required this.processStage,
+    required this.componentStamp,
   });
 
   @override
@@ -23,6 +25,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
   List<CameraDescription>? _cameras;
   bool _isInitialized = false;
   bool _isFlashOn = false;
+  bool _showCaptureFeedback = false;
   List<String> _capturedPhotos = [];
 
   @override
@@ -69,7 +72,29 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
         final image = await _controller!.takePicture();
         setState(() {
           _capturedPhotos.add(image.path);
+          _showCaptureFeedback = true;
         });
+        Future.delayed(const Duration(milliseconds: 120), () {
+          if (mounted) {
+            setState(() {
+              _showCaptureFeedback = false;
+            });
+          }
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Photo saved',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+              duration: const Duration(seconds: 1),
+              backgroundColor: Colors.black87,
+            ),
+          );
+        }
       } catch (e) {
         debugPrint('Error capturing photo: $e');
       }
@@ -86,6 +111,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
             workorderNumber: widget.workorderNumber,
             component: widget.component,
             processStage: widget.processStage,
+            componentStamp: widget.componentStamp,
           ),
         ),
       );
@@ -115,6 +141,19 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
+
+          // Capture feedback overlay
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 120),
+                opacity: _showCaptureFeedback ? 0.2 : 0.0,
+                child: Container(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
 
           // Top Info Card
           Positioned(
@@ -233,7 +272,9 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
             child: Column(
               children: [
                 Text(
-                  'Align and capture',
+                  _capturedPhotos.isEmpty
+                      ? 'Align and capture'
+                      : 'Align and capture  •  ${_capturedPhotos.length} photos captured',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 15,

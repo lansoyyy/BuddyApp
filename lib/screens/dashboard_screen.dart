@@ -16,11 +16,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? _selectedWorkorder;
   String? _selectedComponent;
   String? _selectedProcessStage;
+  String? _selectedComponentStamp;
 
   // Master data lists
   List<String> _workorders = [];
   List<String> _components = [];
   List<String> _processStages = [];
+  List<String> _componentStamps = [];
 
   bool _isLoadingMasterData = true;
   int index = 0;
@@ -36,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final workorders = await service.getWorkorders();
     final components = await service.getComponents();
     final stages = await service.getProcessStages();
+    final componentStamps = await service.getComponentStamps();
 
     if (!mounted) return;
 
@@ -43,6 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _workorders = workorders;
       _components = components;
       _processStages = stages;
+      _componentStamps = componentStamps;
       _isLoadingMasterData = false;
 
       // Reset selections if current values are no longer valid
@@ -54,6 +58,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
       if (!_processStages.contains(_selectedProcessStage)) {
         _selectedProcessStage = null;
+      }
+      if (!_componentStamps.contains(_selectedComponentStamp)) {
+        _selectedComponentStamp = null;
       }
     });
   }
@@ -363,6 +370,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ),
                               const SizedBox(height: 20),
+                              // Component Stamp Field
+                              Text(
+                                'Component (Stamp)',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .inputDecorationTheme
+                                      .fillColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Theme.of(context).dividerColor,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: _selectedComponentStamp,
+                                    hint: Text(
+                                      _componentStamps.isEmpty
+                                          ? 'No component stamps. Tap the edit icon above to add.'
+                                          : 'Select Component Stamp (optional)...',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: Theme.of(context).hintColor,
+                                          ),
+                                    ),
+                                    isExpanded: true,
+                                    icon: Icon(
+                                      Icons.keyboard_arrow_down,
+                                      color: Theme.of(context).iconTheme.color,
+                                    ),
+                                    dropdownColor:
+                                        Theme.of(context).cardTheme.color,
+                                    items: _componentStamps.map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: _componentStamps.isEmpty
+                                        ? null
+                                        : (String? newValue) {
+                                            setState(() {
+                                              _selectedComponentStamp =
+                                                  newValue;
+                                            });
+                                          },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
                               // Process Stage Field
                               Text(
                                 'Process Stage',
@@ -456,6 +533,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 workorderNumber: _selectedWorkorder!,
                                 component: _selectedComponent!,
                                 processStage: _selectedProcessStage!,
+                                componentStamp: _selectedComponentStamp ?? '',
                               ),
                             ),
                           );

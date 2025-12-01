@@ -7,6 +7,7 @@ class AddDetailsScreen extends StatefulWidget {
   final String workorderNumber;
   final String component;
   final String processStage;
+  final String componentStamp;
 
   const AddDetailsScreen({
     super.key,
@@ -14,6 +15,7 @@ class AddDetailsScreen extends StatefulWidget {
     required this.workorderNumber,
     required this.component,
     required this.processStage,
+    required this.componentStamp,
   });
 
   @override
@@ -24,7 +26,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
   int _selectedPhotoIndex = 0;
   String _selectedProject = 'Project Alpha - Q4';
   String _selectedComponent = 'Gearbox Assembly';
-  String _inspectionStatus = 'Fail';
+  String _inspectionStatus = 'Pass';
   String _urgencyLevel = 'Critical';
   final TextEditingController _descriptionController = TextEditingController();
   bool _applyToAll = false;
@@ -46,6 +48,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
           processStage: widget.processStage,
           project: _selectedProject,
           componentPart: _selectedComponent,
+          componentStamp: widget.componentStamp,
           description: _descriptionController.text,
           inspectionStatus: _inspectionStatus,
           urgencyLevel: _urgencyLevel,

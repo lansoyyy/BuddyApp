@@ -10,6 +10,7 @@ class UploadingPhotosScreen extends StatefulWidget {
   final String processStage;
   final String project;
   final String componentPart;
+  final String componentStamp;
   final String description;
   final String inspectionStatus;
   final String urgencyLevel;
@@ -23,6 +24,7 @@ class UploadingPhotosScreen extends StatefulWidget {
     required this.processStage,
     required this.project,
     required this.componentPart,
+    required this.componentStamp,
     required this.description,
     required this.inspectionStatus,
     required this.urgencyLevel,
@@ -103,6 +105,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
           processStage: widget.processStage,
           project: widget.project,
           componentPart: widget.componentPart,
+          componentStamp: widget.componentStamp,
           description: widget.description,
           inspectionStatus: widget.inspectionStatus,
           urgencyLevel: widget.urgencyLevel,
@@ -152,6 +155,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
         processStage: widget.processStage,
         project: widget.project,
         componentPart: widget.componentPart,
+        componentStamp: widget.componentStamp,
         description: widget.description,
         inspectionStatus: widget.inspectionStatus,
         urgencyLevel: widget.urgencyLevel,
