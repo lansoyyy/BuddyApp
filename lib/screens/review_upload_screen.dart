@@ -388,6 +388,10 @@ class ReviewUploadScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     _buildDetailRow(context, 'Stage:', processStage),
                     const SizedBox(height: 12),
+                    _buildDetailRow(context, 'Project:', project),
+                    const SizedBox(height: 12),
+                    _buildDetailRow(context, 'Component Part:', componentPart),
+                    const SizedBox(height: 12),
                     _buildDetailRow(
                         context, 'Inspection Status:', inspectionStatus),
                     const SizedBox(height: 12),
