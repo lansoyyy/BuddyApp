@@ -73,6 +73,7 @@ dependencies:
   firebase_storage: ^13.0.1
   firebase_auth: ^6.0.2
   google_sign_in: ^6.2.1
+  native_exif: ^0.6.2
 
 dev_dependencies:
   flutter_test:

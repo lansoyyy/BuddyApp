@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:native_exif/native_exif.dart';
 
 class GoogleDriveService {
   GoogleDriveService({required this.accessToken});
@@ -141,6 +142,24 @@ class GoogleDriveService {
     final fileId = created['id'] as String?;
     if (fileId == null || fileId.isEmpty) {
       throw Exception('File id missing after metadata creation');
+    }
+
+    // Try to embed metadata into the JPEG's EXIF before uploading
+    try {
+      final exif = await Exif.fromPath(localPath);
+      final exifDescription =
+          'Workorder: $workorderNumber; Component: $component; Stamp: $componentStamp; '
+          'Stage: $processStage; Project: $project; Part: $componentPart; '
+          'Status: $inspectionStatus; Urgency: $urgencyLevel; Desc: $description';
+
+      await exif.writeAttributes(<String, String>{
+        'ImageDescription': exifDescription,
+        'UserComment': exifDescription,
+      });
+
+      await exif.close();
+    } catch (_) {
+      // If EXIF writing fails, continue with original file bytes
     }
 
     final file = File(localPath);
