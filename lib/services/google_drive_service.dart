@@ -3,6 +3,10 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:native_exif/native_exif.dart';
+import 'package:image/image.dart' as img;
+import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
+import 'package:buddyapp/utils/watermark_position.dart';
 
 class GoogleDriveService {
   GoogleDriveService({required this.accessToken});
@@ -100,6 +104,7 @@ class GoogleDriveService {
     required String description,
     required String inspectionStatus,
     required String urgencyLevel,
+    required WatermarkPosition watermarkPosition,
   }) async {
     final jobsFolderId = await _getOrCreateFolder('Jobs');
     final workorderFolderId =
@@ -144,7 +149,21 @@ class GoogleDriveService {
       throw Exception('File id missing after metadata creation');
     }
 
-    // Try to embed metadata into the JPEG's EXIF before uploading
+    await _applyWatermark(
+      localPath: localPath,
+      fileName: fileName,
+      workorderNumber: workorderNumber,
+      component: component,
+      processStage: processStage,
+      project: project,
+      componentPart: componentPart,
+      componentStamp: componentStamp,
+      inspectionStatus: inspectionStatus,
+      urgencyLevel: urgencyLevel,
+      description: description,
+      watermarkPosition: watermarkPosition,
+    );
+
     try {
       final exif = await Exif.fromPath(localPath);
       final exifDescription =
@@ -158,9 +177,7 @@ class GoogleDriveService {
       });
 
       await exif.close();
-    } catch (_) {
-      // If EXIF writing fails, continue with original file bytes
-    }
+    } catch (_) {}
 
     final file = File(localPath);
     final bytes = await file.readAsBytes();
@@ -183,6 +200,121 @@ class GoogleDriveService {
     if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
       throw Exception(
           'Failed to upload file content: ${uploadResponse.statusCode} ${uploadResponse.body}');
+    }
+  }
+
+  Future<void> _applyWatermark({
+    required String localPath,
+    required String fileName,
+    required String workorderNumber,
+    required String component,
+    required String processStage,
+    required String project,
+    required String componentPart,
+    required String componentStamp,
+    required String inspectionStatus,
+    required String urgencyLevel,
+    required String description,
+    required WatermarkPosition watermarkPosition,
+  }) async {
+    try {
+      final file = File(localPath);
+      final bytes = await file.readAsBytes();
+      final image = img.decodeImage(bytes);
+      if (image == null) {
+        return;
+      }
+
+      final now = DateTime.now();
+      final dateStr = DateFormat('yyyy.MM.dd HH:mm:ss').format(now);
+      final locationStr = await _getLocationString();
+
+      final lines = <String>[
+        fileName,
+        dateStr,
+        if (locationStr != null) 'Location: $locationStr',
+        'WO: $workorderNumber  |  $component  |  $processStage',
+      ];
+
+      final font = img.arial24;
+      const margin = 20;
+      final lineHeight =
+          24.0; // Using fixed height since font.height is not available
+
+      int startY;
+      switch (watermarkPosition) {
+        case WatermarkPosition.topLeft:
+        case WatermarkPosition.topRight:
+          startY = margin;
+          break;
+        case WatermarkPosition.bottomLeft:
+        case WatermarkPosition.bottomRight:
+          final textBlockHeight = lineHeight * lines.length;
+          final clampedHeight =
+              textBlockHeight > image.height ? image.height : textBlockHeight;
+          startY = (image.height - margin - clampedHeight).toInt();
+          break;
+      }
+
+      for (int i = 0; i < lines.length; i++) {
+        final y = (startY + i * lineHeight).toInt();
+        switch (watermarkPosition) {
+          case WatermarkPosition.topLeft:
+          case WatermarkPosition.bottomLeft:
+            img.drawString(
+              image,
+              lines[i],
+              font: font,
+              x: margin,
+              y: y,
+              color: img.ColorRgb8(255, 255, 255),
+            );
+            break;
+          case WatermarkPosition.topRight:
+          case WatermarkPosition.bottomRight:
+            img.drawString(
+              image,
+              lines[i],
+              font: font,
+              x: image.width - margin,
+              y: y,
+              color: img.ColorRgb8(255, 255, 255),
+              rightJustify: true,
+            );
+            break;
+        }
+      }
+
+      final encoded = img.encodeJpg(image, quality: 95);
+      await file.writeAsBytes(encoded, flush: true);
+    } catch (_) {}
+  }
+
+  Future<String?> _getLocationString() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return null;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return null;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      return '${position.latitude.toStringAsFixed(5)}, '
+          '${position.longitude.toStringAsFixed(5)}';
+    } catch (_) {
+      return null;
     }
   }
 }

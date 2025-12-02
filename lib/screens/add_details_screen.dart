@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/review_upload_screen.dart';
+import 'package:buddyapp/utils/watermark_position.dart';
 
 class AddDetailsScreen extends StatefulWidget {
   final List<String> photos;
@@ -30,6 +31,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
   String _urgencyLevel = 'Critical';
   final TextEditingController _descriptionController = TextEditingController();
   bool _applyToAll = false;
+  WatermarkPosition _watermarkPosition = WatermarkPosition.bottomRight;
 
   @override
   void dispose() {
@@ -52,6 +54,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
           description: _descriptionController.text,
           inspectionStatus: _inspectionStatus,
           urgencyLevel: _urgencyLevel,
+          watermarkPosition: _watermarkPosition,
         ),
       ),
     );
@@ -267,6 +270,30 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
                   ),
                   const SizedBox(height: 24),
 
+                  // Watermark Position
+                  Text(
+                    'Watermark Position',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildWatermarkPositionChip(
+                          WatermarkPosition.topLeft, 'Top Left'),
+                      _buildWatermarkPositionChip(
+                          WatermarkPosition.topRight, 'Top Right'),
+                      _buildWatermarkPositionChip(
+                          WatermarkPosition.bottomLeft, 'Bottom Left'),
+                      _buildWatermarkPositionChip(
+                          WatermarkPosition.bottomRight, 'Bottom Right'),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
                   // Save Button
                   SizedBox(
                     width: double.infinity,
@@ -401,6 +428,26 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildWatermarkPositionChip(WatermarkPosition position, String label) {
+    final isSelected = _watermarkPosition == position;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) {
+        setState(() {
+          _watermarkPosition = position;
+        });
+      },
+      selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+      labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).hintColor,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          ),
     );
   }
 }

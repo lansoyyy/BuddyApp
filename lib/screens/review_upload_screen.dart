@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:buddyapp/services/google_auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/uploading_photos_screen.dart';
+import 'package:buddyapp/utils/watermark_position.dart';
 
 class ReviewUploadScreen extends StatelessWidget {
   final List<String> photos;
@@ -14,6 +15,7 @@ class ReviewUploadScreen extends StatelessWidget {
   final String description;
   final String inspectionStatus;
   final String urgencyLevel;
+  final WatermarkPosition watermarkPosition;
 
   const ReviewUploadScreen({
     super.key,
@@ -27,6 +29,7 @@ class ReviewUploadScreen extends StatelessWidget {
     required this.description,
     required this.inspectionStatus,
     required this.urgencyLevel,
+    required this.watermarkPosition,
   });
 
   Future<void> _confirmUpload(BuildContext context) async {
@@ -90,6 +93,7 @@ class ReviewUploadScreen extends StatelessWidget {
           description: description,
           inspectionStatus: inspectionStatus,
           urgencyLevel: urgencyLevel,
+          watermarkPosition: watermarkPosition,
           driveAccessToken: token ?? '',
         ),
       ),

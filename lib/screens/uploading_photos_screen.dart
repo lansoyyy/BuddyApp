@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/dashboard_screen.dart';
 import 'package:buddyapp/services/google_drive_service.dart';
+import 'package:buddyapp/utils/watermark_position.dart';
 
 class UploadingPhotosScreen extends StatefulWidget {
   final List<String> photos;
@@ -15,6 +16,7 @@ class UploadingPhotosScreen extends StatefulWidget {
   final String inspectionStatus;
   final String urgencyLevel;
   final String driveAccessToken;
+  final WatermarkPosition watermarkPosition;
 
   const UploadingPhotosScreen({
     super.key,
@@ -28,6 +30,7 @@ class UploadingPhotosScreen extends StatefulWidget {
     required this.description,
     required this.inspectionStatus,
     required this.urgencyLevel,
+    required this.watermarkPosition,
     this.driveAccessToken = '',
   });
 
@@ -109,6 +112,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
           description: widget.description,
           inspectionStatus: widget.inspectionStatus,
           urgencyLevel: widget.urgencyLevel,
+          watermarkPosition: widget.watermarkPosition,
         );
 
         setState(() {
@@ -159,6 +163,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
         description: widget.description,
         inspectionStatus: widget.inspectionStatus,
         urgencyLevel: widget.urgencyLevel,
+        watermarkPosition: widget.watermarkPosition,
       );
 
       setState(() {
