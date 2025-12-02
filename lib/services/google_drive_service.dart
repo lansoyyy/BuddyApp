@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:native_exif/native_exif.dart';
 import 'package:image/image.dart' as img;
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:intl/intl.dart';
 import 'package:buddyapp/utils/watermark_position.dart';
 
@@ -226,15 +227,25 @@ class GoogleDriveService {
       }
 
       final now = DateTime.now();
-      final dateStr = DateFormat('yyyy.MM.dd HH:mm:ss').format(now);
+      final dateStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       final locationStr = await _getLocationString();
 
       final lines = <String>[
         fileName,
         dateStr,
-        if (locationStr != null) 'Location: $locationStr',
-        'WO: $workorderNumber  |  $component  |  $processStage',
       ];
+
+      if (locationStr != null) {
+        lines.add('Location:');
+        for (final part in locationStr.split(', ')) {
+          final trimmed = part.trim();
+          if (trimmed.isNotEmpty) {
+            lines.add(trimmed);
+          }
+        }
+      }
+
+      lines.add('WO: $workorderNumber  |  $component  |  $processStage');
 
       final font = img.arial24;
       const margin = 20;
@@ -310,6 +321,42 @@ class GoogleDriveService {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+
+      String? address;
+      try {
+        final placemarks = await geocoding.placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+
+        if (placemarks.isNotEmpty) {
+          final place = placemarks.first;
+          final parts = <String>[];
+
+          void addPart(String? part) {
+            if (part != null && part.trim().isNotEmpty) {
+              parts.add(part.trim());
+            }
+          }
+
+          addPart(place.street);
+          addPart(place.subLocality);
+          addPart(place.locality);
+          addPart(place.subAdministrativeArea);
+          addPart(place.administrativeArea);
+          addPart(place.country);
+
+          if (parts.isNotEmpty) {
+            address = parts.join(', ');
+          }
+        }
+      } catch (_) {
+        address = null;
+      }
+
+      if (address != null && address!.isNotEmpty) {
+        return address;
+      }
 
       return '${position.latitude.toStringAsFixed(5)}, '
           '${position.longitude.toStringAsFixed(5)}';
