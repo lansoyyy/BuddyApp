@@ -231,6 +231,7 @@ class GoogleDriveService {
       final locationStr = await _getLocationString();
 
       final lines = <String>[
+        'Status: $inspectionStatus  |  Urgency: $urgencyLevel',
         fileName,
         dateStr,
       ];
@@ -265,6 +266,55 @@ class GoogleDriveService {
               textBlockHeight > image.height ? image.height : textBlockHeight;
           startY = (image.height - margin - clampedHeight).toInt();
           break;
+      }
+
+      img.ColorRgb8? headerColor;
+      switch (inspectionStatus.toLowerCase()) {
+        case 'pass':
+          headerColor = img.ColorRgb8(34, 197, 94);
+          break;
+        case 'fail':
+          headerColor = img.ColorRgb8(239, 68, 68);
+          break;
+        case 'review':
+          headerColor = img.ColorRgb8(245, 158, 11);
+          break;
+      }
+
+      if (headerColor != null) {
+        int boxTop = startY - 4;
+        if (boxTop < 0) {
+          boxTop = 0;
+        }
+        final totalTextHeight = lineHeight * lines.length;
+        int boxBottom = (startY + totalTextHeight + 4).toInt();
+        if (boxBottom >= image.height) {
+          boxBottom = image.height - 1;
+        }
+
+        int x1;
+        int x2;
+        switch (watermarkPosition) {
+          case WatermarkPosition.topLeft:
+          case WatermarkPosition.bottomLeft:
+            x1 = 0;
+            x2 = (image.width / 2).toInt();
+            break;
+          case WatermarkPosition.topRight:
+          case WatermarkPosition.bottomRight:
+            x1 = (image.width / 2).toInt();
+            x2 = image.width - 1;
+            break;
+        }
+
+        img.fillRect(
+          image,
+          x1: x1,
+          y1: boxTop,
+          x2: x2,
+          y2: boxBottom,
+          color: headerColor,
+        );
       }
 
       for (int i = 0; i < lines.length; i++) {
