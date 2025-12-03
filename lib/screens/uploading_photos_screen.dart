@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/dashboard_screen.dart';
 import 'package:buddyapp/services/google_drive_service.dart';
+import 'package:buddyapp/services/storage_service.dart';
 import 'package:buddyapp/utils/watermark_position.dart';
 
 class UploadingPhotosScreen extends StatefulWidget {
@@ -44,6 +45,43 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   final List<UploadStatus> _uploadStatuses = [];
   bool _isCancelled = false;
   GoogleDriveService? _driveService;
+  String _userInitials = 'NA';
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    await _loadUserInitials();
+    _initializeUploadStatuses();
+    if (widget.driveAccessToken.isNotEmpty) {
+      _driveService = GoogleDriveService(accessToken: widget.driveAccessToken);
+    }
+    _startUpload();
+  }
+
+  Future<void> _loadUserInitials() async {
+    try {
+      final storage = await StorageService.getInstance();
+      final userData = storage.getUserData();
+      String initials = 'NA';
+      if (userData != null) {
+        final first = (userData['firstName'] as String?)?.trim();
+        final last = (userData['lastName'] as String?)?.trim();
+        if (first != null &&
+            first.isNotEmpty &&
+            last != null &&
+            last.isNotEmpty) {
+          initials = '${first[0].toUpperCase()}${last[0].toUpperCase()}';
+        }
+      }
+      _userInitials = initials;
+    } catch (_) {
+      _userInitials = 'NA';
+    }
+  }
 
   String _buildFileName(int index) {
     String sanitize(String value) {
@@ -54,22 +92,11 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
       return sanitized.isEmpty ? 'NA' : sanitized;
     }
 
-    final wo = sanitize(widget.workorderNumber);
     final comp = sanitize(widget.component);
-    final stamp = sanitize(widget.componentStamp);
-    final stage = sanitize(widget.processStage);
+    final initials = _userInitials;
+    final photoNumber = index + 1;
 
-    return '${wo}_${comp}_${stamp}_${stage}_${index + 1}.jpg';
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeUploadStatuses();
-    if (widget.driveAccessToken.isNotEmpty) {
-      _driveService = GoogleDriveService(accessToken: widget.driveAccessToken);
-    }
-    _startUpload();
+    return '${comp}_Photo${photoNumber}_${initials}.jpg';
   }
 
   void _initializeUploadStatuses() {

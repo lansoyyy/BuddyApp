@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:intl/intl.dart';
 import 'package:buddyapp/utils/watermark_position.dart';
+import 'package:buddyapp/services/storage_service.dart';
 
 class GoogleDriveService {
   GoogleDriveService({required this.accessToken});
@@ -229,14 +230,38 @@ class GoogleDriveService {
       final now = DateTime.now();
       final dateStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       final locationStr = await _getLocationString();
+      final storage = await StorageService.getInstance();
+      final showStatus =
+          storage.getSetting<bool>('watermarkShowStatus', defaultValue: true) ??
+              true;
+      final showTitle =
+          storage.getSetting<bool>('watermarkShowTitle', defaultValue: true) ??
+              true;
+      final showDateTime = storage.getSetting<bool>('watermarkShowDateTime',
+              defaultValue: true) ??
+          true;
+      final showLocation = storage.getSetting<bool>('watermarkShowLocation',
+              defaultValue: true) ??
+          true;
+      final showWorkorder = storage.getSetting<bool>('watermarkShowWorkorder',
+              defaultValue: true) ??
+          true;
 
-      final lines = <String>[
-        'Status: $inspectionStatus  |  Urgency: $urgencyLevel',
-        fileName,
-        dateStr,
-      ];
+      final lines = <String>[];
 
-      if (locationStr != null) {
+      if (showStatus) {
+        lines.add('Status: $inspectionStatus  |  Urgency: $urgencyLevel');
+      }
+
+      if (showTitle) {
+        lines.add(fileName);
+      }
+
+      if (showDateTime) {
+        lines.add(dateStr);
+      }
+
+      if (showLocation && locationStr != null) {
         lines.add('Location:');
         for (final part in locationStr.split(', ')) {
           final trimmed = part.trim();
@@ -246,7 +271,13 @@ class GoogleDriveService {
         }
       }
 
-      lines.add('WO: $workorderNumber  |  $component  |  $processStage');
+      if (showWorkorder) {
+        lines.add('WO: $workorderNumber  |  $component  |  $processStage');
+      }
+
+      if (lines.isEmpty) {
+        return;
+      }
 
       final font = img.arial24;
       const margin = 20;
@@ -269,16 +300,18 @@ class GoogleDriveService {
       }
 
       img.ColorRgb8? headerColor;
-      switch (inspectionStatus.toLowerCase()) {
-        case 'pass':
-          headerColor = img.ColorRgb8(34, 197, 94);
-          break;
-        case 'fail':
-          headerColor = img.ColorRgb8(239, 68, 68);
-          break;
-        case 'review':
-          headerColor = img.ColorRgb8(245, 158, 11);
-          break;
+      if (showStatus) {
+        switch (inspectionStatus.toLowerCase()) {
+          case 'pass':
+            headerColor = img.ColorRgb8(34, 197, 94);
+            break;
+          case 'fail':
+            headerColor = img.ColorRgb8(239, 68, 68);
+            break;
+          case 'review':
+            headerColor = img.ColorRgb8(245, 158, 11);
+            break;
+        }
       }
 
       if (headerColor != null) {

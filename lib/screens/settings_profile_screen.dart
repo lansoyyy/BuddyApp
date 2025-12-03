@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:buddyapp/services/firebase_auth_service.dart';
 import 'package:buddyapp/services/theme_service.dart';
 import 'package:buddyapp/services/google_auth_service.dart';
+import 'package:buddyapp/services/storage_service.dart';
 
 class SettingsProfileScreen extends StatefulWidget {
   const SettingsProfileScreen({super.key});
@@ -15,12 +16,18 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   int _selectedIndex = 4; // Profile tab selected
   late FirebaseAuthService _authService;
   Map<String, dynamic>? _userData;
+  bool _wmShowStatus = true;
+  bool _wmShowTitle = true;
+  bool _wmShowDateTime = true;
+  bool _wmShowLocation = true;
+  bool _wmShowWorkorder = true;
 
   @override
   void initState() {
     super.initState();
     _initializeAuth();
     _loadThemePreference();
+    _loadWatermarkSettings();
   }
 
   Future<void> _initializeAuth() async {
@@ -31,6 +38,27 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   void _loadThemePreference() {
     setState(() {
       _isDarkMode = ThemeService.instance.isDarkMode();
+    });
+  }
+
+  Future<void> _loadWatermarkSettings() async {
+    final storage = await StorageService.getInstance();
+    setState(() {
+      _wmShowStatus =
+          storage.getSetting<bool>('watermarkShowStatus', defaultValue: true) ??
+              true;
+      _wmShowTitle =
+          storage.getSetting<bool>('watermarkShowTitle', defaultValue: true) ??
+              true;
+      _wmShowDateTime = storage.getSetting<bool>('watermarkShowDateTime',
+              defaultValue: true) ??
+          true;
+      _wmShowLocation = storage.getSetting<bool>('watermarkShowLocation',
+              defaultValue: true) ??
+          true;
+      _wmShowWorkorder = storage.getSetting<bool>('watermarkShowWorkorder',
+              defaultValue: true) ??
+          true;
     });
   }
 
@@ -470,6 +498,75 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                         );
                       },
                     ),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Watermark Content',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildWatermarkOptionRow(
+                            label: 'Status & Urgency',
+                            value: _wmShowStatus,
+                            onChanged: (value) => _updateWatermarkSetting(
+                              'watermarkShowStatus',
+                              value,
+                              (v) => _wmShowStatus = v,
+                            ),
+                          ),
+                          _buildWatermarkOptionRow(
+                            label: 'Title (Component & Photo #)',
+                            value: _wmShowTitle,
+                            onChanged: (value) => _updateWatermarkSetting(
+                              'watermarkShowTitle',
+                              value,
+                              (v) => _wmShowTitle = v,
+                            ),
+                          ),
+                          _buildWatermarkOptionRow(
+                            label: 'Date & Time',
+                            value: _wmShowDateTime,
+                            onChanged: (value) => _updateWatermarkSetting(
+                              'watermarkShowDateTime',
+                              value,
+                              (v) => _wmShowDateTime = v,
+                            ),
+                          ),
+                          _buildWatermarkOptionRow(
+                            label: 'Location',
+                            value: _wmShowLocation,
+                            onChanged: (value) => _updateWatermarkSetting(
+                              'watermarkShowLocation',
+                              value,
+                              (v) => _wmShowLocation = v,
+                            ),
+                          ),
+                          _buildWatermarkOptionRow(
+                            label: 'Work Order / Component / Stage',
+                            value: _wmShowWorkorder,
+                            onChanged: (value) => _updateWatermarkSetting(
+                              'watermarkShowWorkorder',
+                              value,
+                              (v) => _wmShowWorkorder = v,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -666,7 +763,6 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   //             label,
   //             style: AppTextStyles.labelSmall.copyWith(
   //               color: isSelected ? AppColors.primary : AppColors.textTertiary,
-  //               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
   //             ),
   //           ),
   //         ],
@@ -674,4 +770,41 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   //     ),
   //   );
   // }
+
+  Widget _buildWatermarkOptionRow({
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Theme.of(context).colorScheme.primary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updateWatermarkSetting(
+    String key,
+    bool value,
+    void Function(bool) assign,
+  ) async {
+    setState(() {
+      assign(value);
+    });
+    final storage = await StorageService.getInstance();
+    await storage.setSetting(key, value);
+  }
 }
