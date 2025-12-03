@@ -45,6 +45,23 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   bool _isCancelled = false;
   GoogleDriveService? _driveService;
 
+  String _buildFileName(int index) {
+    String sanitize(String value) {
+      final sanitized = value
+          .replaceAll(RegExp(r'[^A-Za-z0-9]+'), '_')
+          .replaceAll(RegExp(r'_+'), '_')
+          .replaceAll(RegExp(r'^_+|_+$'), '');
+      return sanitized.isEmpty ? 'NA' : sanitized;
+    }
+
+    final wo = sanitize(widget.workorderNumber);
+    final comp = sanitize(widget.component);
+    final stamp = sanitize(widget.componentStamp);
+    final stage = sanitize(widget.processStage);
+
+    return '${wo}_${comp}_${stamp}_${stage}_${index + 1}.jpg';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -58,8 +75,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   void _initializeUploadStatuses() {
     for (int i = 0; i < widget.photos.length; i++) {
       _uploadStatuses.add(UploadStatus(
-        fileName:
-            'IMG_${DateTime.now().year}${DateTime.now().month.toString().padLeft(2, '0')}${DateTime.now().day.toString().padLeft(2, '0')}${(1432 - i).toString()}.jpg',
+        fileName: _buildFileName(i),
         status: 'pending',
         progress: 0.0,
         photoPath: widget.photos[i],
