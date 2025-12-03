@@ -4,6 +4,7 @@ import 'package:buddyapp/screens/settings_profile_screen.dart';
 import 'package:buddyapp/screens/camera_capture_screen.dart';
 import 'package:buddyapp/services/master_data_service.dart';
 import 'package:buddyapp/screens/master_data_management_screen.dart';
+import 'package:buddyapp/screens/gallery_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -182,13 +183,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'Settings/Profile',
+                              'Gallery',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
                                   ?.copyWith(
                                     fontWeight: FontWeight.w500,
                                     color: index == 1
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.color,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              index = 2;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: index == 2
+                                  ? Theme.of(context).cardTheme.color
+                                  : Theme.of(context).scaffoldBackgroundColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Settings/Profile',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: index == 2
                                         ? Theme.of(context).colorScheme.primary
                                         : Theme.of(context)
                                             .textTheme
@@ -211,307 +246,320 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: CircularProgressIndicator(),
                 )
               else
-                // Form Card
-                index == 1
+                // Tab content
+                index == 2
                     ? const SettingsProfileScreen()
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardTheme.color,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Theme.of(context).shadowColor,
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                    : index == 1
+                        ? const GalleryScreen()
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardTheme.color,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Theme.of(context).shadowColor,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                            ],
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Workorder Number Field
+                                  Text(
+                                    'Workorder Number (Folder)',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .inputDecorationTheme
+                                          .fillColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Theme.of(context).dividerColor,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: _selectedWorkorder,
+                                        hint: Text(
+                                          _workorders.isEmpty
+                                              ? 'No work orders. Tap the edit icon above to add.'
+                                              : 'Select Workorder...',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color:
+                                                    Theme.of(context).hintColor,
+                                              ),
+                                        ),
+                                        isExpanded: true,
+                                        icon: Icon(
+                                          Icons.keyboard_arrow_down,
+                                          color:
+                                              Theme.of(context).iconTheme.color,
+                                        ),
+                                        dropdownColor:
+                                            Theme.of(context).cardTheme.color,
+                                        items: _workorders.map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium,
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: _workorders.isEmpty
+                                            ? null
+                                            : (String? newValue) {
+                                                setState(() {
+                                                  _selectedWorkorder = newValue;
+                                                });
+                                              },
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  // Component Field
+                                  Text(
+                                    'Component (Part)',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .inputDecorationTheme
+                                          .fillColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Theme.of(context).dividerColor,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: _selectedComponent,
+                                        hint: Text(
+                                          _components.isEmpty
+                                              ? 'No components. Tap the edit icon above to add.'
+                                              : 'Select Component...',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color:
+                                                    Theme.of(context).hintColor,
+                                              ),
+                                        ),
+                                        isExpanded: true,
+                                        icon: Icon(
+                                          Icons.keyboard_arrow_down,
+                                          color:
+                                              Theme.of(context).iconTheme.color,
+                                        ),
+                                        dropdownColor:
+                                            Theme.of(context).cardTheme.color,
+                                        items: _components.map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium,
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: _components.isEmpty
+                                            ? null
+                                            : (String? newValue) {
+                                                setState(() {
+                                                  _selectedComponent = newValue;
+                                                });
+                                              },
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  // Component Stamp Field
+                                  Text(
+                                    'Component (Stamp)',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .inputDecorationTheme
+                                          .fillColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Theme.of(context).dividerColor,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: _selectedComponentStamp,
+                                        hint: Text(
+                                          _componentStamps.isEmpty
+                                              ? 'No component stamps. Tap the edit icon above to add.'
+                                              : 'Select Component Stamp (optional)...',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color:
+                                                    Theme.of(context).hintColor,
+                                              ),
+                                        ),
+                                        isExpanded: true,
+                                        icon: Icon(
+                                          Icons.keyboard_arrow_down,
+                                          color:
+                                              Theme.of(context).iconTheme.color,
+                                        ),
+                                        dropdownColor:
+                                            Theme.of(context).cardTheme.color,
+                                        items: _componentStamps
+                                            .map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium,
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: _componentStamps.isEmpty
+                                            ? null
+                                            : (String? newValue) {
+                                                setState(() {
+                                                  _selectedComponentStamp =
+                                                      newValue;
+                                                });
+                                              },
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  // Process Stage Field
+                                  Text(
+                                    'Process Stage',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .inputDecorationTheme
+                                          .fillColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Theme.of(context).dividerColor,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: _selectedProcessStage,
+                                        hint: Text(
+                                          _processStages.isEmpty
+                                              ? 'No process stages. Tap the edit icon above to add.'
+                                              : 'Select Process Stage...',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color:
+                                                    Theme.of(context).hintColor,
+                                              ),
+                                        ),
+                                        isExpanded: true,
+                                        icon: Icon(
+                                          Icons.keyboard_arrow_down,
+                                          color:
+                                              Theme.of(context).iconTheme.color,
+                                        ),
+                                        dropdownColor:
+                                            Theme.of(context).cardTheme.color,
+                                        items:
+                                            _processStages.map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium,
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: _processStages.isEmpty
+                                            ? null
+                                            : (String? newValue) {
+                                                setState(() {
+                                                  _selectedProcessStage =
+                                                      newValue;
+                                                });
+                                              },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Workorder Number Field
-                              Text(
-                                'Workorder Number (Folder)',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .inputDecorationTheme
-                                      .fillColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _selectedWorkorder,
-                                    hint: Text(
-                                      _workorders.isEmpty
-                                          ? 'No work orders. Tap the edit icon above to add.'
-                                          : 'Select Workorder...',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                    ),
-                                    isExpanded: true,
-                                    icon: Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Theme.of(context).iconTheme.color,
-                                    ),
-                                    dropdownColor:
-                                        Theme.of(context).cardTheme.color,
-                                    items: _workorders.map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: _workorders.isEmpty
-                                        ? null
-                                        : (String? newValue) {
-                                            setState(() {
-                                              _selectedWorkorder = newValue;
-                                            });
-                                          },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              // Component Field
-                              Text(
-                                'Component (Part)',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .inputDecorationTheme
-                                      .fillColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _selectedComponent,
-                                    hint: Text(
-                                      _components.isEmpty
-                                          ? 'No components. Tap the edit icon above to add.'
-                                          : 'Select Component...',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                    ),
-                                    isExpanded: true,
-                                    icon: Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Theme.of(context).iconTheme.color,
-                                    ),
-                                    dropdownColor:
-                                        Theme.of(context).cardTheme.color,
-                                    items: _components.map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: _components.isEmpty
-                                        ? null
-                                        : (String? newValue) {
-                                            setState(() {
-                                              _selectedComponent = newValue;
-                                            });
-                                          },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              // Component Stamp Field
-                              Text(
-                                'Component (Stamp)',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .inputDecorationTheme
-                                      .fillColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _selectedComponentStamp,
-                                    hint: Text(
-                                      _componentStamps.isEmpty
-                                          ? 'No component stamps. Tap the edit icon above to add.'
-                                          : 'Select Component Stamp (optional)...',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                    ),
-                                    isExpanded: true,
-                                    icon: Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Theme.of(context).iconTheme.color,
-                                    ),
-                                    dropdownColor:
-                                        Theme.of(context).cardTheme.color,
-                                    items: _componentStamps.map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: _componentStamps.isEmpty
-                                        ? null
-                                        : (String? newValue) {
-                                            setState(() {
-                                              _selectedComponentStamp =
-                                                  newValue;
-                                            });
-                                          },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              // Process Stage Field
-                              Text(
-                                'Process Stage',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .inputDecorationTheme
-                                      .fillColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _selectedProcessStage,
-                                    hint: Text(
-                                      _processStages.isEmpty
-                                          ? 'No process stages. Tap the edit icon above to add.'
-                                          : 'Select Process Stage...',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                    ),
-                                    isExpanded: true,
-                                    icon: Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Theme.of(context).iconTheme.color,
-                                    ),
-                                    dropdownColor:
-                                        Theme.of(context).cardTheme.color,
-                                    items: _processStages.map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: _processStages.isEmpty
-                                        ? null
-                                        : (String? newValue) {
-                                            setState(() {
-                                              _selectedProcessStage = newValue;
-                                            });
-                                          },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
               const SizedBox(height: 24),
               // Start Capturing Button
               Visibility(

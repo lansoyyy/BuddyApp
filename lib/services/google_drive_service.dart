@@ -94,6 +94,48 @@ class GoogleDriveService {
     return files ?? <dynamic>[];
   }
 
+  Future<List<Map<String, String>>> listWorkorderFolders() async {
+    final jobsFolderId = await _getOrCreateFolder('Jobs');
+
+    final uri = Uri.https(
+      _baseUrl,
+      '/drive/v3/files',
+      <String, String>{
+        'q':
+            "'$jobsFolderId' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+        'spaces': 'drive',
+        'fields': 'files(id,name)',
+        'pageSize': '1000',
+      },
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Failed to list workorder folders: ${response.statusCode} ${response.body}');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final files = data['files'] as List<dynamic>? ?? <dynamic>[];
+
+    final result = <Map<String, String>>[];
+    for (final item in files) {
+      if (item is Map<String, dynamic>) {
+        final id = item['id'] as String?;
+        final name = item['name'] as String?;
+        if (id != null && name != null) {
+          result.add(<String, String>{'id': id, 'name': name});
+        }
+      }
+    }
+
+    return result;
+  }
+
   Future<void> uploadPhoto({
     required String localPath,
     required String fileName,
@@ -203,6 +245,46 @@ class GoogleDriveService {
       throw Exception(
           'Failed to upload file content: ${uploadResponse.statusCode} ${uploadResponse.body}');
     }
+  }
+
+  Future<List<Map<String, dynamic>>> listPhotosByWorkorderNumber(
+      String workorderNumber) async {
+    final escapedWorkorder = workorderNumber.replaceAll("'", "\\'");
+    final q =
+        "mimeType contains 'image/' and appProperties has { key='workorderNumber' and value='$escapedWorkorder' } and trashed = false";
+
+    final uri = Uri.https(
+      _baseUrl,
+      '/drive/v3/files',
+      <String, String>{
+        'q': q,
+        'spaces': 'drive',
+        'fields': 'files(id,name,thumbnailLink,appProperties)',
+        'pageSize': '1000',
+      },
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Failed to list photos: ${response.statusCode} ${response.body}');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final files = data['files'] as List<dynamic>? ?? <dynamic>[];
+
+    final result = <Map<String, dynamic>>[];
+    for (final item in files) {
+      if (item is Map<String, dynamic>) {
+        result.add(item);
+      }
+    }
+
+    return result;
   }
 
   Future<void> _applyWatermark({
