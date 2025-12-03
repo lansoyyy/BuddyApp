@@ -101,6 +101,26 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
     }
   }
 
+  Future<void> _onViewFinderTap(
+    TapDownDetails details,
+    BoxConstraints constraints,
+  ) async {
+    if (_controller == null || !_controller!.value.isInitialized) {
+      return;
+    }
+
+    final offset = Offset(
+      details.localPosition.dx / constraints.maxWidth,
+      details.localPosition.dy / constraints.maxHeight,
+    );
+
+    try {
+      await _controller!.setFocusPoint(offset);
+    } catch (e) {
+      debugPrint('Error setting focus point: $e');
+    }
+  }
+
   void _navigateToReview() {
     if (_capturedPhotos.isNotEmpty) {
       Navigator.pushReplacement(
@@ -132,8 +152,19 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
         children: [
           // Camera Preview
           if (_isInitialized && _controller != null)
-            SizedBox.expand(
-              child: CameraPreview(_controller!),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTapDown: (details) =>
+                      _onViewFinderTap(details, constraints),
+                  child: SizedBox(
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    child: CameraPreview(_controller!),
+                  ),
+                );
+              },
             )
           else
             Center(
