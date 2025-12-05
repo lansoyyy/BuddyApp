@@ -47,7 +47,7 @@ class _ReviewPhotosScreenState extends State<ReviewPhotosScreen> {
   }
 
   void _navigateToAddDetails() {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AddDetailsScreen(

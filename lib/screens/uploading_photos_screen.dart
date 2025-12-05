@@ -46,6 +46,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   bool _isCancelled = false;
   GoogleDriveService? _driveService;
   String _userInitials = 'NA';
+  int _existingPhotoCount = 0; // Offset for photo numbering to avoid duplicates
 
   @override
   void initState() {
@@ -55,10 +56,19 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
 
   Future<void> _init() async {
     await _loadUserInitials();
-    _initializeUploadStatuses();
     if (widget.driveAccessToken.isNotEmpty) {
       _driveService = GoogleDriveService(accessToken: widget.driveAccessToken);
+      // Query existing photos to continue numbering and avoid duplicates
+      try {
+        _existingPhotoCount = await _driveService!.countExistingPhotos(
+          workorderNumber: widget.workorderNumber,
+          component: widget.component,
+        );
+      } catch (_) {
+        _existingPhotoCount = 0;
+      }
     }
+    _initializeUploadStatuses();
     _startUpload();
   }
 
@@ -94,7 +104,8 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
 
     final comp = sanitize(widget.component);
     final initials = _userInitials;
-    final photoNumber = index + 1;
+    // Add existing photo count to avoid duplicate naming
+    final photoNumber = _existingPhotoCount + index + 1;
 
     return '${comp}_Photo${photoNumber}_${initials}.jpg';
   }

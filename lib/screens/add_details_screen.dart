@@ -40,7 +40,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
   }
 
   void _saveMetadata() {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ReviewUploadScreen(

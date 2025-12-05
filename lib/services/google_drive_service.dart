@@ -247,6 +247,41 @@ class GoogleDriveService {
     }
   }
 
+  /// Counts existing photos for a given workorder and component to avoid duplicate naming
+  Future<int> countExistingPhotos({
+    required String workorderNumber,
+    required String component,
+  }) async {
+    final escapedWorkorder = workorderNumber.replaceAll("'", "\\'");
+    final escapedComponent = component.replaceAll("'", "\\'");
+    final q =
+        "mimeType contains 'image/' and appProperties has { key='workorderNumber' and value='$escapedWorkorder' } and appProperties has { key='component' and value='$escapedComponent' } and trashed = false";
+
+    final uri = Uri.https(
+      _baseUrl,
+      '/drive/v3/files',
+      <String, String>{
+        'q': q,
+        'spaces': 'drive',
+        'fields': 'files(id)',
+        'pageSize': '1000',
+      },
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (response.statusCode != 200) {
+      return 0; // On error, return 0 to start from Photo1
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final files = data['files'] as List<dynamic>? ?? <dynamic>[];
+    return files.length;
+  }
+
   Future<List<Map<String, dynamic>>> listPhotosByWorkorderNumber(
       String workorderNumber) async {
     final escapedWorkorder = workorderNumber.replaceAll("'", "\\'");
@@ -329,18 +364,29 @@ class GoogleDriveService {
               defaultValue: true) ??
           true;
 
+      // Calculate max characters per line based on image width and font size
+      // arial24 is roughly 12px per character on average
+      const charWidth = 12;
+      final maxChars = ((image.width / 2) - 40) ~/ charWidth;
+
+      String truncate(String text) {
+        if (text.length <= maxChars) return text;
+        return '${text.substring(0, maxChars - 3)}...';
+      }
+
       final lines = <String>[];
 
       if (showStatus) {
-        lines.add('Status: $inspectionStatus  |  Urgency: $urgencyLevel');
+        lines.add(
+            truncate('Status: $inspectionStatus  |  Urgency: $urgencyLevel'));
       }
 
       if (showTitle) {
-        lines.add(fileName);
+        lines.add(truncate(fileName));
       }
 
       if (showDateTime) {
-        lines.add(dateStr);
+        lines.add(truncate(dateStr));
       }
 
       if (showLocation && locationStr != null) {
@@ -348,13 +394,14 @@ class GoogleDriveService {
         for (final part in locationStr.split(', ')) {
           final trimmed = part.trim();
           if (trimmed.isNotEmpty) {
-            lines.add(trimmed);
+            lines.add(truncate(trimmed));
           }
         }
       }
 
       if (showWorkorder) {
-        lines.add('WO: $workorderNumber  |  $component  |  $processStage');
+        lines.add(
+            truncate('WO: $workorderNumber  |  $component  |  $processStage'));
       }
 
       if (lines.isEmpty) {

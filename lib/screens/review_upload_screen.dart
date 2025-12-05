@@ -79,7 +79,7 @@ class ReviewUploadScreen extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => UploadingPhotosScreen(

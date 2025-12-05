@@ -40,10 +40,18 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
       if (_cameras!.isNotEmpty) {
         _controller = CameraController(
           _cameras![0],
-          ResolutionPreset.high,
+          ResolutionPreset.max,
           enableAudio: false,
+          imageFormatGroup: ImageFormatGroup.jpeg,
         );
         await _controller!.initialize();
+        // Enable continuous autofocus for sharper images
+        try {
+          await _controller!.setFocusMode(FocusMode.auto);
+        } catch (_) {}
+        try {
+          await _controller!.setExposureMode(ExposureMode.auto);
+        } catch (_) {}
         if (mounted) {
           setState(() {
             _isInitialized = true;
@@ -123,7 +131,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
 
   void _navigateToReview() {
     if (_capturedPhotos.isNotEmpty) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ReviewPhotosScreen(
