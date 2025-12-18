@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:buddyapp/services/firebase_auth_service.dart';
 import 'package:buddyapp/services/theme_service.dart';
 import 'package:buddyapp/services/google_auth_service.dart';
@@ -22,12 +23,40 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   bool _wmShowLocation = true;
   bool _wmShowWorkorder = true;
 
+  final TextEditingController _driveWorkorderRootPathController =
+      TextEditingController(text: 'Jobs');
+  final TextEditingController _driveFolderTemplateController =
+      TextEditingController(
+          text: 'Jobs/{workorderNumber}/Photos/{processStage}');
+  final TextEditingController _fileNameTemplateController =
+      TextEditingController(
+          text: '{component}_Photo{photoNumber}_{initials}.jpg');
+  final TextEditingController _watermarkTitleTemplateController =
+      TextEditingController(text: '{fileName}');
+
+  double _watermarkBackgroundOpacity = 1.0;
+  double _watermarkLogoScale = 0.25;
+  int _watermarkFontSize = 24;
+  int _watermarkTextColor = 0xFFFFFFFF;
+  bool _watermarkShowLogo = false;
+  String _watermarkLogoPath = '';
+
   @override
   void initState() {
     super.initState();
     _initializeAuth();
     _loadThemePreference();
     _loadWatermarkSettings();
+    _loadCustomizationSettings();
+  }
+
+  @override
+  void dispose() {
+    _driveWorkorderRootPathController.dispose();
+    _driveFolderTemplateController.dispose();
+    _fileNameTemplateController.dispose();
+    _watermarkTitleTemplateController.dispose();
+    super.dispose();
   }
 
   Future<void> _initializeAuth() async {
@@ -60,6 +89,105 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
               defaultValue: true) ??
           true;
     });
+  }
+
+  Future<void> _loadCustomizationSettings() async {
+    final storage = await StorageService.getInstance();
+
+    final driveWorkorderRootPath = storage.getSetting<String>(
+          'driveWorkorderRootPath',
+          defaultValue: 'Jobs',
+        ) ??
+        'Jobs';
+    final driveFolderTemplate = storage.getSetting<String>(
+          'driveFolderTemplate',
+          defaultValue: 'Jobs/{workorderNumber}/Photos/{processStage}',
+        ) ??
+        'Jobs/{workorderNumber}/Photos/{processStage}';
+    final fileNameTemplate = storage.getSetting<String>(
+          'fileNameTemplate',
+          defaultValue: '{component}_Photo{photoNumber}_{initials}.jpg',
+        ) ??
+        '{component}_Photo{photoNumber}_{initials}.jpg';
+    final watermarkTitleTemplate = storage.getSetting<String>(
+          'watermarkTitleTemplate',
+          defaultValue: '{fileName}',
+        ) ??
+        '{fileName}';
+
+    setState(() {
+      _driveWorkorderRootPathController.text = driveWorkorderRootPath;
+      _driveFolderTemplateController.text = driveFolderTemplate;
+      _fileNameTemplateController.text = fileNameTemplate;
+      _watermarkTitleTemplateController.text = watermarkTitleTemplate;
+
+      _watermarkFontSize =
+          storage.getSetting<int>('watermarkFontSize', defaultValue: 24) ?? 24;
+      _watermarkTextColor = storage.getSetting<int>(
+            'watermarkTextColor',
+            defaultValue: 0xFFFFFFFF,
+          ) ??
+          0xFFFFFFFF;
+      _watermarkBackgroundOpacity = storage.getSetting<double>(
+            'watermarkBackgroundOpacity',
+            defaultValue: 1.0,
+          ) ??
+          1.0;
+      _watermarkShowLogo = storage.getSetting<bool>(
+            'watermarkShowLogo',
+            defaultValue: false,
+          ) ??
+          false;
+      _watermarkLogoPath =
+          storage.getSetting<String>('watermarkLogoPath') ?? '';
+      _watermarkLogoScale = storage.getSetting<double>(
+            'watermarkLogoScale',
+            defaultValue: 0.25,
+          ) ??
+          0.25;
+    });
+  }
+
+  Future<void> _saveStringSetting(String key, String value) async {
+    final storage = await StorageService.getInstance();
+    await storage.setSetting(key, value.trim());
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Saved')),
+      );
+    }
+  }
+
+  Future<void> _saveIntSetting(String key, int value) async {
+    final storage = await StorageService.getInstance();
+    await storage.setSetting(key, value);
+  }
+
+  Future<void> _saveDoubleSetting(String key, double value) async {
+    final storage = await StorageService.getInstance();
+    await storage.setSetting(key, value);
+  }
+
+  Future<void> _saveBoolSetting(String key, bool value) async {
+    final storage = await StorageService.getInstance();
+    await storage.setSetting(key, value);
+  }
+
+  Future<void> _pickWatermarkLogo() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) {
+        return;
+      }
+
+      setState(() {
+        _watermarkLogoPath = picked.path;
+        _watermarkShowLogo = true;
+      });
+      await _saveStringSetting('watermarkLogoPath', picked.path);
+      await _saveBoolSetting('watermarkShowLogo', true);
+    } catch (_) {}
   }
 
   Future<void> _loadUserData() async {
@@ -563,6 +691,334 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                               value,
                               (v) => _wmShowWorkorder = v,
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Drive Organization',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _driveWorkorderRootPathController,
+                            decoration: const InputDecoration(
+                              labelText: 'Workorder Root Path',
+                              hintText: 'Jobs',
+                            ),
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) => _saveStringSetting(
+                                'driveWorkorderRootPath', value),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _driveFolderTemplateController,
+                            decoration: const InputDecoration(
+                              labelText: 'Upload Folder Template',
+                              hintText:
+                                  'Jobs/{workorderNumber}/Photos/{processStage}',
+                            ),
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) => _saveStringSetting(
+                                'driveFolderTemplate', value),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Placeholders: {workorderNumber}, {processStage}, {component}, {project}, {componentPart}, {componentStamp}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Theme.of(context).hintColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'File Naming',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _fileNameTemplateController,
+                            decoration: const InputDecoration(
+                              labelText: 'File Name Template',
+                              hintText:
+                                  '{component}_Photo{photoNumber}_{initials}.jpg',
+                            ),
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) =>
+                                _saveStringSetting('fileNameTemplate', value),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Placeholders: {component}, {photoNumber}, {initials}, {workorderNumber}, {processStage}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Theme.of(context).hintColor),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _watermarkTitleTemplateController,
+                            decoration: const InputDecoration(
+                              labelText: 'Watermark Title Template',
+                              hintText: '{fileName}',
+                            ),
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) => _saveStringSetting(
+                              'watermarkTitleTemplate',
+                              value,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Placeholders: {fileName}, {workorderNumber}, {component}, {processStage}, {project}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Theme.of(context).hintColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Watermark Appearance',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Font size: $_watermarkFontSize',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Slider(
+                            value: _watermarkFontSize.toDouble(),
+                            min: 14,
+                            max: 48,
+                            divisions: 34,
+                            label: _watermarkFontSize.toString(),
+                            onChanged: (value) async {
+                              final v = value.round();
+                              setState(() {
+                                _watermarkFontSize = v;
+                              });
+                              await _saveIntSetting('watermarkFontSize', v);
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Background opacity: ${_watermarkBackgroundOpacity.toStringAsFixed(2)}',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Slider(
+                            value: _watermarkBackgroundOpacity,
+                            min: 0.0,
+                            max: 1.0,
+                            divisions: 20,
+                            label:
+                                _watermarkBackgroundOpacity.toStringAsFixed(2),
+                            onChanged: (value) async {
+                              setState(() {
+                                _watermarkBackgroundOpacity = value;
+                              });
+                              await _saveDoubleSetting(
+                                'watermarkBackgroundOpacity',
+                                value,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<int>(
+                            value: _watermarkTextColor,
+                            decoration: const InputDecoration(
+                              labelText: 'Text Color',
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 0xFFFFFFFF,
+                                child: Text('White'),
+                              ),
+                              DropdownMenuItem(
+                                value: 0xFF000000,
+                                child: Text('Black'),
+                              ),
+                              DropdownMenuItem(
+                                value: 0xFFFFEB3B,
+                                child: Text('Yellow'),
+                              ),
+                              DropdownMenuItem(
+                                value: 0xFFF44336,
+                                child: Text('Red'),
+                              ),
+                              DropdownMenuItem(
+                                value: 0xFF2196F3,
+                                child: Text('Blue'),
+                              ),
+                            ],
+                            onChanged: (value) async {
+                              if (value == null) return;
+                              setState(() {
+                                _watermarkTextColor = value;
+                              });
+                              await _saveIntSetting(
+                                  'watermarkTextColor', value);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Watermark Logo',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildWatermarkOptionRow(
+                            label: 'Enable logo watermark',
+                            value: _watermarkShowLogo,
+                            onChanged: (value) async {
+                              setState(() {
+                                _watermarkShowLogo = value;
+                              });
+                              await _saveBoolSetting(
+                                  'watermarkShowLogo', value);
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _watermarkLogoPath.isEmpty
+                                      ? 'No logo selected'
+                                      : _watermarkLogoPath,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: Theme.of(context).hintColor),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              TextButton(
+                                onPressed: _pickWatermarkLogo,
+                                child: const Text('Select'),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  setState(() {
+                                    _watermarkLogoPath = '';
+                                    _watermarkShowLogo = false;
+                                  });
+                                  await _saveStringSetting(
+                                      'watermarkLogoPath', '');
+                                  await _saveBoolSetting(
+                                      'watermarkShowLogo', false);
+                                },
+                                child: const Text('Clear'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Logo scale: ${_watermarkLogoScale.toStringAsFixed(2)}',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Slider(
+                            value: _watermarkLogoScale,
+                            min: 0.10,
+                            max: 0.50,
+                            divisions: 40,
+                            label: _watermarkLogoScale.toStringAsFixed(2),
+                            onChanged: (value) async {
+                              setState(() {
+                                _watermarkLogoScale = value;
+                              });
+                              await _saveDoubleSetting(
+                                  'watermarkLogoScale', value);
+                            },
                           ),
                         ],
                       ),

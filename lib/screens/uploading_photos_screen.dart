@@ -47,6 +47,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   GoogleDriveService? _driveService;
   String _userInitials = 'NA';
   int _existingPhotoCount = 0; // Offset for photo numbering to avoid duplicates
+  String _fileNameTemplate = '{component}_Photo{photoNumber}_{initials}.jpg';
 
   @override
   void initState() {
@@ -56,6 +57,12 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
 
   Future<void> _init() async {
     await _loadUserInitials();
+    final storage = await StorageService.getInstance();
+    _fileNameTemplate = storage.getSetting<String>(
+          'fileNameTemplate',
+          defaultValue: '{component}_Photo{photoNumber}_{initials}.jpg',
+        ) ??
+        '{component}_Photo{photoNumber}_{initials}.jpg';
     if (widget.driveAccessToken.isNotEmpty) {
       _driveService = GoogleDriveService(accessToken: widget.driveAccessToken);
       // Query existing photos to continue numbering and avoid duplicates
@@ -102,12 +109,38 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
       return sanitized.isEmpty ? 'NA' : sanitized;
     }
 
-    final comp = sanitize(widget.component);
-    final initials = _userInitials;
-    // Add existing photo count to avoid duplicate naming
     final photoNumber = _existingPhotoCount + index + 1;
 
-    return '${comp}_Photo${photoNumber}_${initials}.jpg';
+    final vars = <String, String>{
+      'component': sanitize(widget.component),
+      'photoNumber': photoNumber.toString(),
+      'initials': sanitize(_userInitials),
+      'workorderNumber': sanitize(widget.workorderNumber),
+      'processStage': sanitize(widget.processStage),
+      'project': sanitize(widget.project),
+      'componentPart': sanitize(widget.componentPart),
+      'componentStamp': sanitize(widget.componentStamp),
+      'inspectionStatus': sanitize(widget.inspectionStatus),
+      'urgencyLevel': sanitize(widget.urgencyLevel),
+    };
+
+    var name = _fileNameTemplate;
+    vars.forEach((key, value) {
+      name = name.replaceAll('{$key}', value);
+    });
+
+    name = name.trim();
+    if (name.isEmpty) {
+      name =
+          '${vars['component']}_Photo${vars['photoNumber']}_${vars['initials']}.jpg';
+    }
+
+    final lower = name.toLowerCase();
+    if (!lower.endsWith('.jpg') && !lower.endsWith('.jpeg')) {
+      name = '$name.jpg';
+    }
+
+    return name;
   }
 
   void _initializeUploadStatuses() {

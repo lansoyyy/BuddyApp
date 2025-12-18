@@ -95,7 +95,25 @@ class GoogleDriveService {
   }
 
   Future<List<Map<String, String>>> listWorkorderFolders() async {
-    final jobsFolderId = await _getOrCreateFolder('Jobs');
+    final storage = await StorageService.getInstance();
+    final workorderRootPath = storage.getSetting<String>(
+          'driveWorkorderRootPath',
+          defaultValue: 'Jobs',
+        ) ??
+        'Jobs';
+
+    String? parentId;
+    final segments = workorderRootPath
+        .split('/')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    for (final segment in segments) {
+      parentId = await _getOrCreateFolder(segment, parentId: parentId);
+    }
+
+    final jobsFolderId = parentId ?? await _getOrCreateFolder('Jobs');
 
     final uri = Uri.https(
       _baseUrl,
@@ -150,13 +168,49 @@ class GoogleDriveService {
     required String urgencyLevel,
     required WatermarkPosition watermarkPosition,
   }) async {
-    final jobsFolderId = await _getOrCreateFolder('Jobs');
-    final workorderFolderId =
-        await _getOrCreateFolder(workorderNumber, parentId: jobsFolderId);
-    final photosFolderId =
-        await _getOrCreateFolder('Photos', parentId: workorderFolderId);
-    final stageFolderId =
-        await _getOrCreateFolder(processStage, parentId: photosFolderId);
+    final storage = await StorageService.getInstance();
+    final folderTemplate = storage.getSetting<String>(
+          'driveFolderTemplate',
+          defaultValue: 'Jobs/{workorderNumber}/Photos/{processStage}',
+        ) ??
+        'Jobs/{workorderNumber}/Photos/{processStage}';
+
+    final templateVars = <String, String>{
+      'workorderNumber': workorderNumber,
+      'component': component,
+      'processStage': processStage,
+      'project': project,
+      'componentPart': componentPart,
+      'componentStamp': componentStamp,
+      'inspectionStatus': inspectionStatus,
+      'urgencyLevel': urgencyLevel,
+    };
+
+    String resolveSegment(String segment) {
+      var resolved = segment;
+      templateVars.forEach((key, value) {
+        resolved = resolved.replaceAll('{$key}', value);
+      });
+      resolved = resolved.replaceAll('/', '-').trim();
+      return resolved;
+    }
+
+    String? parentId;
+    final segments = folderTemplate
+        .split('/')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    for (final segment in segments) {
+      final name = resolveSegment(segment);
+      if (name.isEmpty) {
+        continue;
+      }
+      parentId = await _getOrCreateFolder(name, parentId: parentId);
+    }
+
+    final stageFolderId = parentId ?? await _getOrCreateFolder('Jobs');
 
     final metadata = <String, dynamic>{
       'name': fileName,
@@ -364,9 +418,41 @@ class GoogleDriveService {
               defaultValue: true) ??
           true;
 
-      // Calculate max characters per line based on image width and font size
-      // arial24 is roughly 12px per character on average
-      const charWidth = 12;
+      final fontSize =
+          storage.getSetting<int>('watermarkFontSize', defaultValue: 24) ?? 24;
+      final textColorValue = storage.getSetting<int>(
+            'watermarkTextColor',
+            defaultValue: 0xFFFFFFFF,
+          ) ??
+          0xFFFFFFFF;
+      final backgroundOpacity = storage.getSetting<double>(
+            'watermarkBackgroundOpacity',
+            defaultValue: 1.0,
+          ) ??
+          1.0;
+      final showLogo =
+          storage.getSetting<bool>('watermarkShowLogo', defaultValue: false) ??
+              false;
+      final logoPath = storage.getSetting<String>('watermarkLogoPath');
+      final logoScale = storage.getSetting<double>(
+            'watermarkLogoScale',
+            defaultValue: 0.25,
+          ) ??
+          0.25;
+
+      final ta = (textColorValue >> 24) & 0xFF;
+      final tr = (textColorValue >> 16) & 0xFF;
+      final tg = (textColorValue >> 8) & 0xFF;
+      final tb = (textColorValue) & 0xFF;
+      final textColor = img.ColorRgba8(tr, tg, tb, ta);
+
+      final font = fontSize <= 14
+          ? img.arial14
+          : fontSize <= 24
+              ? img.arial24
+              : img.arial48;
+
+      final charWidth = (fontSize / 2).round().clamp(7, 30);
       final maxChars = ((image.width / 2) - 40) ~/ charWidth;
 
       String truncate(String text) {
@@ -382,7 +468,35 @@ class GoogleDriveService {
       }
 
       if (showTitle) {
-        lines.add(truncate(fileName));
+        final titleTemplate = storage.getSetting<String>(
+              'watermarkTitleTemplate',
+              defaultValue: '{fileName}',
+            ) ??
+            '{fileName}';
+
+        final titleVars = <String, String>{
+          'fileName': fileName,
+          'workorderNumber': workorderNumber,
+          'component': component,
+          'processStage': processStage,
+          'project': project,
+          'componentPart': componentPart,
+          'componentStamp': componentStamp,
+          'inspectionStatus': inspectionStatus,
+          'urgencyLevel': urgencyLevel,
+          'description': description,
+        };
+
+        var title = titleTemplate;
+        titleVars.forEach((key, value) {
+          title = title.replaceAll('{$key}', value);
+        });
+        title = title.trim();
+        if (title.isEmpty) {
+          title = fileName;
+        }
+
+        lines.add(truncate(title));
       }
 
       if (showDateTime) {
@@ -408,10 +522,26 @@ class GoogleDriveService {
         return;
       }
 
-      final font = img.arial24;
       const margin = 20;
-      final lineHeight =
-          24.0; // Using fixed height since font.height is not available
+
+      final lineHeight = fontSize.toDouble();
+
+      img.Image? logoImage;
+      if (showLogo && logoPath != null && logoPath.isNotEmpty) {
+        try {
+          final logoBytes = await File(logoPath).readAsBytes();
+          final decodedLogo = img.decodeImage(logoBytes);
+          if (decodedLogo != null) {
+            final maxLogoWidth = ((image.width / 2) - (margin * 2)).toInt();
+            final targetWidth =
+                (maxLogoWidth * logoScale).toInt().clamp(24, maxLogoWidth);
+            logoImage = img.copyResize(decodedLogo, width: targetWidth);
+          }
+        } catch (_) {}
+      }
+
+      final logoBlockHeight =
+          logoImage != null ? (logoImage.height + 8).toDouble() : 0.0;
 
       int startY;
       switch (watermarkPosition) {
@@ -421,66 +551,110 @@ class GoogleDriveService {
           break;
         case WatermarkPosition.bottomLeft:
         case WatermarkPosition.bottomRight:
-          final textBlockHeight = lineHeight * lines.length;
+          final textBlockHeight = (lineHeight * lines.length) + logoBlockHeight;
           final clampedHeight =
               textBlockHeight > image.height ? image.height : textBlockHeight;
           startY = (image.height - margin - clampedHeight).toInt();
           break;
       }
 
-      img.ColorRgb8? headerColor;
-      if (showStatus) {
-        switch (inspectionStatus.toLowerCase()) {
-          case 'pass':
-            headerColor = img.ColorRgb8(34, 197, 94);
-            break;
-          case 'fail':
-            headerColor = img.ColorRgb8(239, 68, 68);
-            break;
-          case 'review':
-            headerColor = img.ColorRgb8(245, 158, 11);
-            break;
-        }
+      final bgAlpha =
+          (backgroundOpacity.clamp(0.0, 1.0) * 255).round().clamp(0, 255);
+
+      int boxTop = startY - 4;
+      if (boxTop < 0) {
+        boxTop = 0;
+      }
+      final totalTextHeight = (lineHeight * lines.length) + logoBlockHeight;
+      int boxBottom = (startY + totalTextHeight + 4).toInt();
+      if (boxBottom >= image.height) {
+        boxBottom = image.height - 1;
       }
 
-      if (headerColor != null) {
-        int boxTop = startY - 4;
-        if (boxTop < 0) {
-          boxTop = 0;
-        }
-        final totalTextHeight = lineHeight * lines.length;
-        int boxBottom = (startY + totalTextHeight + 4).toInt();
-        if (boxBottom >= image.height) {
-          boxBottom = image.height - 1;
-        }
+      int x1;
+      int x2;
+      switch (watermarkPosition) {
+        case WatermarkPosition.topLeft:
+        case WatermarkPosition.bottomLeft:
+          x1 = 0;
+          x2 = (image.width / 2).toInt();
+          break;
+        case WatermarkPosition.topRight:
+        case WatermarkPosition.bottomRight:
+          x1 = (image.width / 2).toInt();
+          x2 = image.width - 1;
+          break;
+      }
 
-        int x1;
-        int x2;
-        switch (watermarkPosition) {
-          case WatermarkPosition.topLeft:
-          case WatermarkPosition.bottomLeft:
-            x1 = 0;
-            x2 = (image.width / 2).toInt();
-            break;
-          case WatermarkPosition.topRight:
-          case WatermarkPosition.bottomRight:
-            x1 = (image.width / 2).toInt();
-            x2 = image.width - 1;
-            break;
-        }
-
+      if (bgAlpha > 0) {
         img.fillRect(
           image,
           x1: x1,
           y1: boxTop,
           x2: x2,
           y2: boxBottom,
-          color: headerColor,
+          color: img.ColorRgba8(0, 0, 0, bgAlpha),
         );
       }
 
+      if (showStatus && lines.isNotEmpty) {
+        int? sr;
+        int? sg;
+        int? sb;
+        switch (inspectionStatus.toLowerCase()) {
+          case 'pass':
+            sr = 34;
+            sg = 197;
+            sb = 94;
+            break;
+          case 'fail':
+            sr = 239;
+            sg = 68;
+            sb = 68;
+            break;
+          case 'review':
+            sr = 245;
+            sg = 158;
+            sb = 11;
+            break;
+        }
+
+        if (sr != null && sg != null && sb != null) {
+          final statusTop =
+              (startY + logoBlockHeight - 4).toInt().clamp(0, image.height - 1);
+          final statusBottom = (startY + logoBlockHeight + lineHeight + 4)
+              .toInt()
+              .clamp(0, image.height - 1);
+          if (statusBottom > statusTop) {
+            img.fillRect(
+              image,
+              x1: x1,
+              y1: statusTop,
+              x2: x2,
+              y2: statusBottom,
+              color: img.ColorRgba8(sr, sg, sb, bgAlpha),
+            );
+          }
+        }
+      }
+
+      if (logoImage != null) {
+        final logoX = (watermarkPosition == WatermarkPosition.topRight ||
+                watermarkPosition == WatermarkPosition.bottomRight)
+            ? (image.width - margin - logoImage.width)
+            : margin;
+        img.compositeImage(
+          image,
+          logoImage,
+          dstX: logoX,
+          dstY: startY,
+          blend: img.BlendMode.alpha,
+        );
+      }
+
+      final textStartY = startY + logoBlockHeight;
       for (int i = 0; i < lines.length; i++) {
-        final y = (startY + i * lineHeight).toInt();
+        final y = (textStartY + i * lineHeight).toInt();
         switch (watermarkPosition) {
           case WatermarkPosition.topLeft:
           case WatermarkPosition.bottomLeft:
@@ -490,7 +664,7 @@ class GoogleDriveService {
               font: font,
               x: margin,
               y: y,
-              color: img.ColorRgb8(255, 255, 255),
+              color: textColor,
             );
             break;
           case WatermarkPosition.topRight:
@@ -501,7 +675,7 @@ class GoogleDriveService {
               font: font,
               x: image.width - margin,
               y: y,
-              color: img.ColorRgb8(255, 255, 255),
+              color: textColor,
               rightJustify: true,
             );
             break;
