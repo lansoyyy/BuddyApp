@@ -28,6 +28,9 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
   bool _showCaptureFeedback = false;
   List<String> _capturedPhotos = [];
 
+  Offset? _focusIndicatorPosition;
+  bool _showFocusIndicator = false;
+
   @override
   void initState() {
     super.initState();
@@ -117,15 +120,53 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
       return;
     }
 
-    final offset = Offset(
-      details.localPosition.dx / constraints.maxWidth,
-      details.localPosition.dy / constraints.maxHeight,
-    );
+    final previewSize = _controller!.value.previewSize;
+    if (previewSize == null) {
+      return;
+    }
+
+    setState(() {
+      _focusIndicatorPosition = details.localPosition;
+      _showFocusIndicator = true;
+    });
+    Future.delayed(const Duration(milliseconds: 900), () {
+      if (mounted) {
+        setState(() {
+          _showFocusIndicator = false;
+        });
+      }
+    });
+
+    final previewW = previewSize.height;
+    final previewH = previewSize.width;
+
+    final scale = (constraints.maxWidth / previewW)
+        .clamp(0.0, double.infinity)
+        .toDouble();
+    final scaleY = (constraints.maxHeight / previewH)
+        .clamp(0.0, double.infinity)
+        .toDouble();
+    final coverScale = scale > scaleY ? scale : scaleY;
+
+    final scaledW = previewW * coverScale;
+    final scaledH = previewH * coverScale;
+    final dx = (scaledW - constraints.maxWidth) / 2;
+    final dy = (scaledH - constraints.maxHeight) / 2;
+
+    final x = ((details.localPosition.dx + dx) / scaledW).clamp(0.0, 1.0);
+    final y = ((details.localPosition.dy + dy) / scaledH).clamp(0.0, 1.0);
+    final point = Offset(x, y);
 
     try {
-      await _controller!.setFocusPoint(offset);
+      await _controller!.setFocusPoint(point);
     } catch (e) {
       debugPrint('Error setting focus point: $e');
+    }
+
+    try {
+      await _controller!.setExposurePoint(point);
+    } catch (e) {
+      debugPrint('Error setting exposure point: $e');
     }
   }
 
@@ -169,7 +210,18 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
                   child: SizedBox(
                     width: constraints.maxWidth,
                     height: constraints.maxHeight,
-                    child: CameraPreview(_controller!),
+                    child: ClipRect(
+                      child: FittedBox(
+                        fit: BoxFit.cover,
+                        child: SizedBox(
+                          width: _controller!.value.previewSize?.height ??
+                              constraints.maxWidth,
+                          height: _controller!.value.previewSize?.width ??
+                              constraints.maxHeight,
+                          child: CameraPreview(_controller!),
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },
@@ -193,6 +245,29 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
               ),
             ),
           ),
+
+          if (_showFocusIndicator && _focusIndicatorPosition != null)
+            Positioned(
+              left: _focusIndicatorPosition!.dx - 28,
+              top: _focusIndicatorPosition!.dy - 28,
+              child: IgnorePointer(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 120),
+                  opacity: _showFocusIndicator ? 1.0 : 0.0,
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.95),
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           // Top Info Card
           Positioned(
