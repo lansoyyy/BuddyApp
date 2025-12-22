@@ -5,6 +5,7 @@ import 'package:buddyapp/screens/camera_capture_screen.dart';
 import 'package:buddyapp/services/master_data_service.dart';
 import 'package:buddyapp/screens/master_data_management_screen.dart';
 import 'package:buddyapp/screens/gallery_screen.dart';
+import 'package:buddyapp/services/storage_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -27,11 +28,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   bool _isLoadingMasterData = true;
   int index = 0;
+  bool _quickSnapMode = false;
 
   @override
   void initState() {
     super.initState();
+    _loadPersistedSelections();
     _loadMasterData();
+  }
+
+  Future<void> _loadPersistedSelections() async {
+    final storage = await StorageService.getInstance();
+    setState(() {
+      _selectedWorkorder = storage.getSetting<String>('selectedWorkorder');
+      _selectedComponent = storage.getSetting<String>('selectedComponent');
+      _selectedProcessStage =
+          storage.getSetting<String>('selectedProcessStage');
+      _selectedComponentStamp =
+          storage.getSetting<String>('selectedComponentStamp');
+      _quickSnapMode = storage.getSetting<bool>('quickSnapMode') ?? false;
+    });
+  }
+
+  Future<void> _persistSelections() async {
+    final storage = await StorageService.getInstance();
+    await storage.setSetting('selectedWorkorder', _selectedWorkorder);
+    await storage.setSetting('selectedComponent', _selectedComponent);
+    await storage.setSetting('selectedProcessStage', _selectedProcessStage);
+    await storage.setSetting('selectedComponentStamp', _selectedComponentStamp);
+    await storage.setSetting('quickSnapMode', _quickSnapMode);
   }
 
   Future<void> _loadMasterData() async {
@@ -335,6 +360,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 setState(() {
                                                   _selectedWorkorder = newValue;
                                                 });
+                                                _persistSelections();
                                               },
                                       ),
                                     ),
@@ -406,6 +432,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 setState(() {
                                                   _selectedComponent = newValue;
                                                 });
+                                                _persistSelections();
                                               },
                                       ),
                                     ),
@@ -479,6 +506,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                   _selectedComponentStamp =
                                                       newValue;
                                                 });
+                                                _persistSelections();
                                               },
                                       ),
                                     ),
@@ -552,6 +580,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                   _selectedProcessStage =
                                                       newValue;
                                                 });
+                                                _persistSelections();
                                               },
                                       ),
                                     ),
@@ -561,6 +590,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
               const SizedBox(height: 24),
+              // Quick Snap Mode Toggle
+              Visibility(
+                visible: index == 0,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardTheme.color,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).dividerColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.flash_on,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Quick Snap Mode',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                'Skip details screen and upload directly with blank status/urgency',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: _quickSnapMode,
+                          onChanged: (value) {
+                            setState(() {
+                              _quickSnapMode = value;
+                            });
+                            _persistSelections();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               // Start Capturing Button
               Visibility(
                 visible: index == 0,
@@ -582,6 +672,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 component: _selectedComponent!,
                                 processStage: _selectedProcessStage!,
                                 componentStamp: _selectedComponentStamp ?? '',
+                                quickSnapMode: _quickSnapMode,
                               ),
                             ),
                           );

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:buddyapp/screens/review_photos_screen.dart';
+import 'package:buddyapp/screens/uploading_photos_screen.dart';
+import 'package:buddyapp/utils/watermark_position.dart';
 
 class CameraCaptureScreen extends StatefulWidget {
   final String workorderNumber;
   final String component;
   final String processStage;
   final String componentStamp;
+  final bool quickSnapMode;
 
   const CameraCaptureScreen({
     super.key,
@@ -14,6 +17,7 @@ class CameraCaptureScreen extends StatefulWidget {
     required this.component,
     required this.processStage,
     required this.componentStamp,
+    this.quickSnapMode = false,
   });
 
   @override
@@ -172,18 +176,43 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
 
   void _navigateToReview() {
     if (_capturedPhotos.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ReviewPhotosScreen(
-            photos: _capturedPhotos,
-            workorderNumber: widget.workorderNumber,
-            component: widget.component,
-            processStage: widget.processStage,
-            componentStamp: widget.componentStamp,
+      if (widget.quickSnapMode) {
+        // Quick Snap: skip review screen, go directly to upload with blank status/urgency
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UploadingPhotosScreen(
+              photos: _capturedPhotos,
+              workorderNumber: widget.workorderNumber,
+              component: widget.component,
+              processStage: widget.processStage,
+              project: '', // Blank for Quick Snap
+              componentPart:
+                  widget.componentStamp, // Use component stamp as part
+              componentStamp: widget.componentStamp,
+              description: '', // Blank for Quick Snap
+              inspectionStatus: '', // Blank for Quick Snap
+              urgencyLevel: '', // Blank for Quick Snap
+              watermarkPosition:
+                  WatermarkPosition.bottomLeft, // Default position
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        // Normal flow: go to review screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReviewPhotosScreen(
+              photos: _capturedPhotos,
+              workorderNumber: widget.workorderNumber,
+              component: widget.component,
+              processStage: widget.processStage,
+              componentStamp: widget.componentStamp,
+            ),
+          ),
+        );
+      }
     }
   }
 

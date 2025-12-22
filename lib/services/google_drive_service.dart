@@ -450,10 +450,13 @@ class GoogleDriveService {
           ? img.arial14
           : fontSize <= 24
               ? img.arial24
-              : img.arial48;
+              : fontSize <= 36
+                  ? img.arial48
+                  : img.arial48;
 
-      final charWidth = (fontSize / 2).round().clamp(7, 30);
+      final charWidth = (fontSize * 0.55).round().clamp(6, 32);
       final maxChars = ((image.width / 2) - 40) ~/ charWidth;
+      final lineHeight = (fontSize * 1.3).ceil().toDouble();
 
       String truncate(String text) {
         if (text.length <= maxChars) return text;
@@ -523,8 +526,6 @@ class GoogleDriveService {
       }
 
       const margin = 20;
-
-      final lineHeight = fontSize.toDouble();
 
       img.Image? logoImage;
       if (showLogo && logoPath != null && logoPath.isNotEmpty) {
