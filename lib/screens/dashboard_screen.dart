@@ -6,6 +6,9 @@ import 'package:buddyapp/services/master_data_service.dart';
 import 'package:buddyapp/screens/master_data_management_screen.dart';
 import 'package:buddyapp/screens/gallery_screen.dart';
 import 'package:buddyapp/services/storage_service.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:buddyapp/services/ocr_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -57,6 +60,120 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await storage.setSetting('selectedProcessStage', _selectedProcessStage);
     await storage.setSetting('selectedComponentStamp', _selectedComponentStamp);
     await storage.setSetting('quickSnapMode', _quickSnapMode);
+  }
+
+  Future<void> _scanWaybill() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    if (pickedFile == null) return;
+
+    setState(() {
+      _isLoadingMasterData = true;
+    });
+
+    try {
+      final ocrService = OcrService.instance;
+      final waybillData =
+          await ocrService.processWaybillImage(File(pickedFile.path));
+
+      if (waybillData != null) {
+        _showWaybillDialog(waybillData);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to extract waybill data')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error scanning waybill: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingMasterData = false;
+        });
+      }
+    }
+  }
+
+  void _showWaybillDialog(WaybillData data) {
+    final shipmentController =
+        TextEditingController(text: data.shipmentNumber ?? '');
+    final senderController = TextEditingController(text: data.senderName ?? '');
+    final consigneeController =
+        TextEditingController(text: data.consigneeName ?? '');
+    final dateController = TextEditingController(text: data.date ?? '');
+    final weightController = TextEditingController(text: data.weight ?? '');
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Scanned Waybill Data'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: shipmentController,
+                decoration: const InputDecoration(labelText: 'Shipment Number'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: senderController,
+                decoration: const InputDecoration(labelText: 'Sender Name'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: consigneeController,
+                decoration: const InputDecoration(labelText: 'Consignee Name'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: dateController,
+                decoration: const InputDecoration(labelText: 'Date'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: weightController,
+                decoration: const InputDecoration(labelText: 'Weight'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newWorkorder = shipmentController.text.trim();
+              if (newWorkorder.isNotEmpty) {
+                final masterDataService = await MasterDataService.getInstance();
+                await masterDataService.addWorkorder(newWorkorder);
+                await _loadMasterData();
+                setState(() {
+                  _selectedWorkorder = newWorkorder;
+                  // Auto-select Receiving stage if it exists
+                  if (_processStages.contains('Receiving')) {
+                    _selectedProcessStage = 'Receiving';
+                  }
+                });
+                _persistSelections();
+              }
+              if (mounted) Navigator.pop(context);
+            },
+            child: const Text('Use as Workorder'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _loadMasterData() async {
@@ -295,14 +412,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // Workorder Number Field
-                                  Text(
-                                    'Workorder Number (Folder)',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w500,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Workorder Number (Folder)',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                      TextButton.icon(
+                                        onPressed: _scanWaybill,
+                                        icon: const Icon(
+                                            Icons.document_scanner_outlined,
+                                            size: 20),
+                                        label: const Text('Scan Waybill'),
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                         ),
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(height: 12),
                                   Container(
