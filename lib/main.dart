@@ -12,6 +12,8 @@ import 'package:buddyapp/screens/privacy_screen.dart';
 import 'package:buddyapp/screens/dashboard_screen.dart';
 import 'package:buddyapp/screens/help_support_screen.dart';
 import 'package:buddyapp/screens/notifications_screen.dart';
+import 'package:buddyapp/screens/incoming_shipment_screen.dart';
+import 'package:buddyapp/screens/worksheet_screen.dart';
 import 'package:buddyapp/services/firebase_auth_service.dart';
 import 'package:buddyapp/services/storage_service.dart';
 import 'package:buddyapp/services/theme_service.dart';
@@ -74,6 +76,8 @@ class _MyAppState extends State<MyApp> {
             '/dashboard': (context) => const DashboardScreen(),
             '/help-support': (context) => const HelpSupportScreen(),
             '/notifications': (context) => const NotificationsScreen(),
+            '/incoming-shipments': (context) => const IncomingShipmentScreen(),
+            '/worksheets': (context) => const WorksheetScreen(),
             '/register': (context) => const SignupScreen(),
           },
         );
