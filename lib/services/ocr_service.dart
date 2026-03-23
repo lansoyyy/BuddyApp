@@ -88,6 +88,55 @@ class OcrService {
   final _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
   final _logger = Logger();
 
+  static const List<String> _shipmentLabels = <String>[
+    'bill of lading no',
+    'bill of lading',
+    'waybill no',
+    'waybill number',
+    'waybill',
+    'shipment no',
+    'shipment number',
+    'shipment #',
+    'tracking no',
+    'tracking number',
+    'tracking #',
+    'awb no',
+    'awb',
+    'pro no',
+    'pro number',
+  ];
+
+  static const List<String> _senderLabels = <String>[
+    'shipper',
+    'shipper name',
+    'consignor',
+    'sender',
+    'from',
+  ];
+
+  static const List<String> _consigneeLabels = <String>[
+    'consignee',
+    'consignee name',
+    'receiver',
+    'recipient',
+    'deliver to',
+    'to',
+  ];
+
+  static const List<String> _dateLabels = <String>[
+    'date',
+    'ship date',
+    'pickup date',
+    'delivery date',
+  ];
+
+  static const List<String> _weightLabels = <String>[
+    'total weight',
+    'gross weight',
+    'net weight',
+    'weight',
+  ];
+
   static OcrService? _instance;
 
   OcrService._();
@@ -105,6 +154,10 @@ class OcrService {
       String rawText = recognizedText.text;
       _logger.i('Extracted OCR Text length: ${rawText.length}');
 
+      if (rawText.trim().isEmpty) {
+        return null;
+      }
+
       return _parseWaybillText(recognizedText);
     } catch (e) {
       _logger.e('Error processing image for OCR: $e');
@@ -113,84 +166,19 @@ class OcrService {
   }
 
   WaybillData _parseWaybillText(RecognizedText recognizedText) {
-    String? shipmentNumber;
-    String? senderName;
-    String? consigneeName;
-    String? date;
-    String? weight;
-
-    // Simple line-by-line heuristic parsing based on typical waybill structures
-    List<String> lines = recognizedText.blocks
+    final lines = recognizedText.blocks
         .expand((block) => block.lines)
-        .map((line) => line.text)
+        .map((line) => _normalizeLine(line.text))
+        .where((line) => line.isNotEmpty)
         .toList();
 
-    String fullText = recognizedText.text;
+    final fullText = lines.join('\n');
 
-    // 1. Try to find Shipment / Bill of Lading Number
-    final bolRegex = RegExp(
-        r'(?:BILL OF LADING NO\.|WAYBILL|SHIPMENT #|TRACKING NO\.?|PRO NO\.?)\s*[:#-]?\s*([A-Z0-9]+)',
-        caseSensitive: false);
-    final bolMatch = bolRegex.firstMatch(fullText);
-    if (bolMatch != null && bolMatch.groupCount >= 1) {
-      shipmentNumber = bolMatch.group(1);
-    }
-
-    // 2. Try to find Date
-    final dateRegex = RegExp(
-        r'\b(?:\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{1,2},? \d{4})\b',
-        caseSensitive: false);
-    final dateMatch = dateRegex.firstMatch(fullText);
-    if (dateMatch != null) {
-      date = dateMatch.group(0);
-    }
-
-    // 3. Try to find Weight
-    final weightRegex = RegExp(
-        r'(?:TOTAL WEIGHT|WEIGHT)\s*[:#-]?\s*([\d\.,]+\s*(?:LBS|KG|KGS))',
-        caseSensitive: false);
-    final weightMatch = weightRegex.firstMatch(fullText);
-    if (weightMatch != null && weightMatch.groupCount >= 1) {
-      weight = weightMatch.group(1);
-    }
-
-    // 4. Try to find Shipper/Consignor and Consignee
-    for (int i = 0; i < lines.length; i++) {
-      String line = lines[i].toUpperCase();
-
-      // Look for Shipper
-      if (senderName == null &&
-          (line.contains('SHIPPER') || line.contains('CONSIGNOR'))) {
-        // Assume the next non-empty line might be the name
-        int j = i + 1;
-        while (j < lines.length && j < i + 4) {
-          // Look ahead up to 3 lines
-          String nextLine = lines[j].trim();
-          if (nextLine.isNotEmpty &&
-              !nextLine.toUpperCase().contains('NAME') &&
-              !nextLine.toUpperCase().contains('ADDRESS')) {
-            senderName = nextLine;
-            break;
-          }
-          j++;
-        }
-      }
-
-      // Look for Consignee
-      if (consigneeName == null && line.contains('CONSIGNEE')) {
-        int j = i + 1;
-        while (j < lines.length && j < i + 4) {
-          String nextLine = lines[j].trim();
-          if (nextLine.isNotEmpty &&
-              !nextLine.toUpperCase().contains('NAME') &&
-              !nextLine.toUpperCase().contains('ADDRESS')) {
-            consigneeName = nextLine;
-            break;
-          }
-          j++;
-        }
-      }
-    }
+    final shipmentNumber = _extractShipmentNumber(lines, fullText);
+    final senderName = _extractLabeledValue(lines, _senderLabels);
+    final consigneeName = _extractLabeledValue(lines, _consigneeLabels);
+    final date = _extractDate(lines, fullText);
+    final weight = _extractWeight(lines, fullText);
 
     return WaybillData(
       shipmentNumber: shipmentNumber,
@@ -200,6 +188,182 @@ class OcrService {
       weight: weight,
       rawText: fullText,
     );
+  }
+
+  String _normalizeLine(String text) {
+    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+  }
+
+  String? _extractShipmentNumber(List<String> lines, String fullText) {
+    final bolRegex = RegExp(
+      r'(?:bill of lading no\.?|bill of lading|waybill no\.?|waybill number|waybill|shipment no\.?|shipment number|shipment #|tracking no\.?|tracking number|tracking #|awb no\.?|awb|pro no\.?)\s*[:#-]?\s*([A-Z0-9\-/]{5,})',
+      caseSensitive: false,
+    );
+    final bolMatch = bolRegex.firstMatch(fullText);
+    if (bolMatch != null) {
+      return _cleanCandidate(bolMatch.group(1));
+    }
+
+    final labeled = _extractLabeledValue(lines, _shipmentLabels);
+    if (labeled != null) {
+      final candidate = RegExp(r'[A-Z0-9][A-Z0-9\-/]{4,}', caseSensitive: false)
+          .firstMatch(labeled);
+      if (candidate != null) {
+        return _cleanCandidate(candidate.group(0));
+      }
+    }
+
+    for (final line in lines) {
+      final candidate = RegExp(
+        r'\b([A-Z0-9][A-Z0-9\-/]{5,})\b',
+        caseSensitive: false,
+      ).firstMatch(line);
+      if (candidate == null) {
+        continue;
+      }
+
+      final value = _cleanCandidate(candidate.group(1));
+      if (value == null) {
+        continue;
+      }
+
+      if (RegExp(r'^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}$').hasMatch(value)) {
+        continue;
+      }
+
+      if (value.replaceAll(RegExp(r'[^0-9]'), '').isEmpty) {
+        continue;
+      }
+
+      return value;
+    }
+
+    return null;
+  }
+
+  String? _extractDate(List<String> lines, String fullText) {
+    final labeled = _extractLabeledValue(lines, _dateLabels);
+    final labeledDate = _matchDate(labeled ?? '');
+    if (labeledDate != null) {
+      return labeledDate;
+    }
+
+    return _matchDate(fullText);
+  }
+
+  String? _extractWeight(List<String> lines, String fullText) {
+    final weightRegex = RegExp(
+      r'(?:total weight|gross weight|net weight|weight)\s*[:#-]?\s*([\d\.,]+\s*(?:lb|lbs|kg|kgs|kilograms?)?)',
+      caseSensitive: false,
+    );
+    final directMatch = weightRegex.firstMatch(fullText);
+    if (directMatch != null) {
+      return _cleanWeight(directMatch.group(1));
+    }
+
+    final labeled = _extractLabeledValue(lines, _weightLabels);
+    if (labeled != null) {
+      return _cleanWeight(labeled);
+    }
+
+    return null;
+  }
+
+  String? _extractLabeledValue(List<String> lines, List<String> labels) {
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i];
+      final lower = line.toLowerCase();
+
+      for (final label in labels) {
+        if (!lower.contains(label)) {
+          continue;
+        }
+
+        final inline = _extractInlineValue(line, label);
+        if (inline != null) {
+          return inline;
+        }
+
+        for (int offset = 1;
+            offset <= 2 && i + offset < lines.length;
+            offset++) {
+          final candidate = _cleanCandidate(lines[i + offset]);
+          if (candidate == null || _looksLikeLabel(candidate)) {
+            continue;
+          }
+          return candidate;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  String? _extractInlineValue(String line, String label) {
+    final match = RegExp(
+      '${RegExp.escape(label)}\\s*[:#-]?\\s*(.+)',
+      caseSensitive: false,
+    ).firstMatch(line);
+    if (match == null) {
+      return null;
+    }
+
+    return _cleanCandidate(match.group(1));
+  }
+
+  bool _looksLikeLabel(String value) {
+    final normalized = value.toLowerCase();
+    final allLabels = <String>{
+      ..._shipmentLabels,
+      ..._senderLabels,
+      ..._consigneeLabels,
+      ..._dateLabels,
+      ..._weightLabels,
+      'name',
+      'address',
+      'phone',
+    };
+
+    return allLabels.any(
+        (label) => normalized == label || normalized.startsWith('$label '));
+  }
+
+  String? _cleanCandidate(String? value) {
+    if (value == null) {
+      return null;
+    }
+
+    final cleaned = value
+        .replaceAll(RegExp(r'^[\s:;#\-]+'), '')
+        .replaceAll(RegExp(r'[\s:;#\-]+$'), '')
+        .trim();
+
+    if (cleaned.isEmpty) {
+      return null;
+    }
+
+    return cleaned;
+  }
+
+  String? _matchDate(String text) {
+    final dateRegex = RegExp(
+      r'\b(?:\d{1,4}[-/]\d{1,2}[-/]\d{1,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{2,4})\b',
+      caseSensitive: false,
+    );
+    return dateRegex.firstMatch(text)?.group(0);
+  }
+
+  String? _cleanWeight(String? value) {
+    final cleaned = _cleanCandidate(value);
+    if (cleaned == null) {
+      return null;
+    }
+
+    final match = RegExp(
+      r'([\d\.,]+\s*(?:lb|lbs|kg|kgs|kilograms?)?)',
+      caseSensitive: false,
+    ).firstMatch(cleaned);
+    return match?.group(1)?.trim() ?? cleaned;
   }
 
   Future<WorksheetOCRData?> processWorksheetImage(File imageFile) async {

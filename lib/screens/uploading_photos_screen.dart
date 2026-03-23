@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:buddyapp/screens/dashboard_screen.dart';
+import 'package:buddyapp/services/google_auth_service.dart';
 import 'package:buddyapp/services/google_drive_service.dart';
 import 'package:buddyapp/services/storage_service.dart';
 import 'package:buddyapp/utils/watermark_position.dart';
@@ -41,7 +42,6 @@ class UploadingPhotosScreen extends StatefulWidget {
 
 class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   double _overallProgress = 0.0;
-  int _currentUploadIndex = 0;
   final List<UploadStatus> _uploadStatuses = [];
   bool _isCancelled = false;
   GoogleDriveService? _driveService;
@@ -63,20 +63,67 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
           defaultValue: '{component}_Photo{photoNumber}_{initials}.jpg',
         ) ??
         '{component}_Photo{photoNumber}_{initials}.jpg';
-    if (widget.driveAccessToken.isNotEmpty) {
-      _driveService = GoogleDriveService(accessToken: widget.driveAccessToken);
-      // Query existing photos to continue numbering and avoid duplicates
-      try {
-        _existingPhotoCount = await _driveService!.countExistingPhotos(
-          workorderNumber: widget.workorderNumber,
-          component: widget.component,
-        );
-      } catch (_) {
-        _existingPhotoCount = 0;
-      }
-    }
+    await _ensureDriveService(promptIfNeeded: true);
     _initializeUploadStatuses();
     _startUpload();
+  }
+
+  Future<GoogleDriveService?> _ensureDriveService({
+    required bool promptIfNeeded,
+  }) async {
+    if (_driveService != null) {
+      return _driveService;
+    }
+
+    var token = widget.driveAccessToken.trim();
+    token = token.isNotEmpty
+        ? token
+        : (GoogleAuthService.instance.currentDriveAccessToken?.trim() ?? '');
+
+    if (token.isEmpty && promptIfNeeded && mounted) {
+      final shouldConnect = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Google Drive not connected'),
+            content: const Text(
+              'Quick Snap needs a Google Drive connection before it can upload photos.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Connect now'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (shouldConnect == true) {
+        token = await GoogleAuthService.instance.signInForDrive() ?? '';
+      }
+    }
+
+    if (token.isEmpty) {
+      return null;
+    }
+
+    _driveService = GoogleDriveService(accessToken: token);
+
+    try {
+      _existingPhotoCount = await _driveService!.countExistingPhotos(
+        workorderNumber: widget.workorderNumber,
+        component: widget.component,
+      );
+    } catch (_) {
+      _existingPhotoCount = 0;
+    }
+
+    return _driveService;
   }
 
   Future<void> _loadUserInitials() async {
@@ -159,17 +206,27 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
       return;
     }
 
-    if (_driveService == null) {
+    final driveService = await _ensureDriveService(promptIfNeeded: true);
+    if (driveService == null) {
       for (int i = 0; i < _uploadStatuses.length; i++) {
         if (_isCancelled) {
           break;
         }
         setState(() {
-          _currentUploadIndex = i;
           _uploadStatuses[i].status = 'failed';
           _uploadStatuses[i].progress = 1.0;
+          _uploadStatuses[i].errorMessage =
+              'Google Drive not connected. Tap to retry.';
           _recalculateOverallProgress();
         });
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Google Drive connection is required to upload.'),
+          ),
+        );
       }
       return;
     }
@@ -181,13 +238,12 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
 
       final status = _uploadStatuses[i];
       setState(() {
-        _currentUploadIndex = i;
         status.status = 'uploading';
         status.progress = 0.0;
       });
 
       try {
-        await _driveService!.uploadPhoto(
+        await driveService.uploadPhoto(
           localPath: status.photoPath,
           fileName: status.fileName,
           workorderNumber: widget.workorderNumber,
@@ -205,6 +261,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
         setState(() {
           status.progress = 1.0;
           status.status = 'completed';
+          status.errorMessage = null;
           _recalculateOverallProgress();
         });
       } catch (e, st) {
@@ -213,6 +270,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
         setState(() {
           status.progress = 1.0;
           status.status = 'failed';
+          status.errorMessage = _formatUploadError(e);
           _recalculateOverallProgress();
         });
       }
@@ -227,7 +285,19 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   }
 
   Future<void> _retryFailedUpload(int index) async {
-    if (_driveService == null || _isCancelled) {
+    if (_isCancelled) {
+      return;
+    }
+
+    final driveService = await _ensureDriveService(promptIfNeeded: true);
+    if (driveService == null) {
+      setState(() {
+        _uploadStatuses[index].status = 'failed';
+        _uploadStatuses[index].progress = 1.0;
+        _uploadStatuses[index].errorMessage =
+            'Google Drive not connected. Tap to retry.';
+        _recalculateOverallProgress();
+      });
       return;
     }
 
@@ -235,10 +305,11 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
     setState(() {
       status.status = 'uploading';
       status.progress = 0.0;
+      status.errorMessage = null;
     });
 
     try {
-      await _driveService!.uploadPhoto(
+      await driveService.uploadPhoto(
         localPath: status.photoPath,
         fileName: status.fileName,
         workorderNumber: widget.workorderNumber,
@@ -256,6 +327,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
       setState(() {
         status.progress = 1.0;
         status.status = 'completed';
+        status.errorMessage = null;
         _recalculateOverallProgress();
       });
     } catch (e, st) {
@@ -264,9 +336,21 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
       setState(() {
         status.progress = 1.0;
         status.status = 'failed';
+        status.errorMessage = _formatUploadError(e);
         _recalculateOverallProgress();
       });
     }
+  }
+
+  String _formatUploadError(Object error) {
+    final message = error.toString();
+    if (message.contains('401') || message.contains('403')) {
+      return 'Google Drive authorization failed. Tap to retry.';
+    }
+    if (message.contains('SocketException')) {
+      return 'Network connection lost. Tap to retry.';
+    }
+    return 'Upload failed. Tap to retry.';
   }
 
   void _viewFiles() {
@@ -445,7 +529,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
   Widget _buildUploadItem(UploadStatus status, int index) {
     IconData statusIcon;
     Color statusColor;
-    Widget? trailing;
+    late final Widget trailing;
 
     switch (status.status) {
       case 'completed':
@@ -527,7 +611,8 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
                   status.status == 'completed'
                       ? 'Completed'
                       : status.status == 'failed'
-                          ? 'Failed: Connection lost. Tap to retry.'
+                          ? (status.errorMessage ??
+                              'Upload failed. Tap to retry.')
                           : 'Uploading...',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: status.status == 'failed'
@@ -543,7 +628,7 @@ class _UploadingPhotosScreenState extends State<UploadingPhotosScreen> {
           ),
 
           // Status Icon or Progress
-          trailing ?? const SizedBox(),
+          trailing,
         ],
       ),
     );
@@ -555,11 +640,13 @@ class UploadStatus {
   String status; // 'pending', 'uploading', 'completed', 'failed'
   double progress;
   final String photoPath;
+  String? errorMessage;
 
   UploadStatus({
     required this.fileName,
     required this.status,
     required this.progress,
     required this.photoPath,
+    this.errorMessage,
   });
 }
