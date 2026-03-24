@@ -292,21 +292,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              'Job Workorder',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: index == 0
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color,
-                                  ),
-                              textAlign: TextAlign.center,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'Job Workorder',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: index == 0
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color,
+                                    ),
+                                maxLines: 1,
+                                softWrap: false,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),
@@ -326,21 +333,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              'Incoming',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: index == 1
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color,
-                                  ),
-                              textAlign: TextAlign.center,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'Incoming',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: index == 1
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color,
+                                    ),
+                                maxLines: 1,
+                                softWrap: false,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),
@@ -360,21 +374,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              'Worksheets',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: index == 2
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color,
-                                  ),
-                              textAlign: TextAlign.center,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'Worksheets',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: index == 2
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color,
+                                    ),
+                                maxLines: 1,
+                                softWrap: false,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),
@@ -394,21 +415,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              'Gallery',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: index == 3
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color,
-                                  ),
-                              textAlign: TextAlign.center,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'Gallery',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: index == 3
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color,
+                                    ),
+                                maxLines: 1,
+                                softWrap: false,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),
@@ -428,21 +456,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              'Settings',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: index == 4
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color,
-                                  ),
-                              textAlign: TextAlign.center,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'Settings',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: index == 4
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color,
+                                    ),
+                                maxLines: 1,
+                                softWrap: false,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),
@@ -466,7 +501,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         : index == 2
                             ? const WorksheetScreen()
                             : index == 1
-                                ? const IncomingShipmentScreen()
+                                ? const IncomingShipmentScreen(embedded: true)
                                 : Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 20),

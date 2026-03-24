@@ -7,7 +7,12 @@ import 'dart:io';
 import 'package:uuid/uuid.dart';
 
 class IncomingShipmentScreen extends StatefulWidget {
-  const IncomingShipmentScreen({super.key});
+  final bool embedded;
+
+  const IncomingShipmentScreen({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   State<IncomingShipmentScreen> createState() => _IncomingShipmentScreenState();
@@ -313,6 +318,38 @@ class _IncomingShipmentScreenState extends State<IncomingShipmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final content = _buildBody();
+
+    if (widget.embedded) {
+      return Column(
+        children: [
+          AppBar(
+            title: const Text('Incoming Shipments'),
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt),
+                onPressed: _scanWaybill,
+                tooltip: 'Scan Waybill',
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () => _showAddShipmentDialog(),
+                tooltip: 'Add Manually',
+              ),
+            ],
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: content,
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -333,182 +370,190 @@ class _IncomingShipmentScreenState extends State<IncomingShipmentScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _shipments.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.local_shipping_outlined,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No incoming shipments yet',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                        onPressed: _scanWaybill,
-                        icon: const Icon(Icons.camera_alt),
-                        label: const Text('Scan Waybill'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ],
+      body: content,
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_shipments.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.local_shipping_outlined,
+                size: 64,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No incoming shipments yet',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: _scanWaybill,
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Scan Waybill'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadShipments,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _shipments.length,
-                    itemBuilder: (context, index) {
-                      final shipment = _shipments[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: InkWell(
-                          onTap: () => _showShipmentDetails(shipment),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        shipment.shipmentNumber,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    PopupMenuButton<String>(
-                                      onSelected: (value) {
-                                        if (value == 'edit') {
-                                          _showAddShipmentDialog(
-                                            existingShipment: shipment,
-                                          );
-                                        } else if (value == 'delete') {
-                                          _deleteShipment(shipment);
-                                        }
-                                      },
-                                      itemBuilder: (context) => [
-                                        const PopupMenuItem(
-                                          value: 'edit',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.edit, size: 18),
-                                              SizedBox(width: 8),
-                                              Text('Edit'),
-                                            ],
-                                          ),
-                                        ),
-                                        const PopupMenuItem(
-                                          value: 'delete',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.delete,
-                                                  size: 18, color: Colors.red),
-                                              SizedBox(width: 8),
-                                              Text('Delete',
-                                                  style: TextStyle(
-                                                      color: Colors.red)),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.person,
-                                        size: 16, color: Colors.grey),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        shipment.senderName,
-                                        style:
-                                            TextStyle(color: Colors.grey[700]),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                if (shipment.consigneeName.isNotEmpty)
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.business,
-                                          size: 16, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Expanded(
-                                        child: Text(
-                                          shipment.consigneeName,
-                                          style: TextStyle(
-                                              color: Colors.grey[700]),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    if (shipment.date.isNotEmpty) ...[
-                                      const Icon(Icons.calendar_today,
-                                          size: 16, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        shipment.date,
-                                        style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12),
-                                      ),
-                                      const SizedBox(width: 16),
-                                    ],
-                                    if (shipment.weight.isNotEmpty) ...[
-                                      const Icon(Icons.scale,
-                                          size: 16, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        shipment.weight,
-                                        style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadShipments,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _shipments.length,
+        itemBuilder: (context, index) {
+          final shipment = _shipments[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: InkWell(
+              onTap: () => _showShipmentDetails(shipment),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            shipment.shipmentNumber,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                        PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _showAddShipmentDialog(
+                                existingShipment: shipment,
+                              );
+                            } else if (value == 'delete') {
+                              _deleteShipment(shipment);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Edit'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete,
+                                      size: 18, color: Colors.red),
+                                  SizedBox(width: 8),
+                                  Text('Delete',
+                                      style: TextStyle(color: Colors.red)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.person, size: 16, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            shipment.senderName,
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    if (shipment.consigneeName.isNotEmpty)
+                      Row(
+                        children: [
+                          const Icon(Icons.business,
+                              size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              shipment.consigneeName,
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        if (shipment.date.isNotEmpty) ...[
+                          const Icon(Icons.calendar_today,
+                              size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(
+                            shipment.date,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                        ],
+                        if (shipment.weight.isNotEmpty) ...[
+                          const Icon(Icons.scale, size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(
+                            shipment.weight,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
                 ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
