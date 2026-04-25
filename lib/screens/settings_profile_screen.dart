@@ -14,7 +14,7 @@ class SettingsProfileScreen extends StatefulWidget {
 
 class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   bool _isDarkMode = false;
-  int _selectedIndex = 4; // Profile tab selected
+  int _selectedIndex = 3; // Profile tab selected
   late FirebaseAuthService _authService;
   Map<String, dynamic>? _userData;
   bool _wmShowStatus = true;
@@ -22,6 +22,10 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   bool _wmShowDateTime = true;
   bool _wmShowLocation = true;
   bool _wmShowWorkorder = true;
+  // Photo Title Content toggles (which fields appear in the watermark title line)
+  bool _titleShowWorkorder = true;
+  bool _titleShowComponent = true;
+  bool _titleShowStage = false;
 
   final TextEditingController _driveWorkorderRootPathController =
       TextEditingController(text: 'Jobs');
@@ -88,6 +92,15 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
       _wmShowWorkorder = storage.getSetting<bool>('watermarkShowWorkorder',
               defaultValue: true) ??
           true;
+      _titleShowWorkorder =
+          storage.getSetting<bool>('titleShowWorkorder', defaultValue: true) ??
+              true;
+      _titleShowComponent =
+          storage.getSetting<bool>('titleShowComponent', defaultValue: true) ??
+              true;
+      _titleShowStage =
+          storage.getSetting<bool>('titleShowStage', defaultValue: false) ??
+              false;
     });
   }
 
@@ -690,6 +703,52 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                               'watermarkShowWorkorder',
                               value,
                               (v) => _wmShowWorkorder = v,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          const Divider(height: 1),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Photo Title Content',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                          ),
+                          Text(
+                            'Choose which fields appear in the photo title line on the watermark.',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildWatermarkOptionRow(
+                            label: 'Workorder #',
+                            value: _titleShowWorkorder,
+                            onChanged: (value) => _updateWatermarkSetting(
+                              'titleShowWorkorder',
+                              value,
+                              (v) => _titleShowWorkorder = v,
+                            ),
+                          ),
+                          _buildWatermarkOptionRow(
+                            label: 'Component Part',
+                            value: _titleShowComponent,
+                            onChanged: (value) => _updateWatermarkSetting(
+                              'titleShowComponent',
+                              value,
+                              (v) => _titleShowComponent = v,
+                            ),
+                          ),
+                          _buildWatermarkOptionRow(
+                            label: 'Process Stage',
+                            value: _titleShowStage,
+                            onChanged: (value) => _updateWatermarkSetting(
+                              'titleShowStage',
+                              value,
+                              (v) => _titleShowStage = v,
                             ),
                           ),
                         ],

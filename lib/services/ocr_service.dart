@@ -104,6 +104,29 @@ class OcrService {
     'awb',
     'pro no',
     'pro number',
+    // Work order / job order patterns
+    'work order no',
+    'work order number',
+    'work order #',
+    'work order',
+    'workorder no',
+    'workorder number',
+    'workorder #',
+    'workorder',
+    'wo no',
+    'wo number',
+    'wo#',
+    'wo',
+    'job order no',
+    'job order number',
+    'job order #',
+    'job order',
+    'job no',
+    'job number',
+    'job #',
+    'order no',
+    'order number',
+    'order #',
   ];
 
   static const List<String> _senderLabels = <String>[
@@ -196,7 +219,7 @@ class OcrService {
 
   String? _extractShipmentNumber(List<String> lines, String fullText) {
     final bolRegex = RegExp(
-      r'(?:bill of lading no\.?|bill of lading|waybill no\.?|waybill number|waybill|shipment no\.?|shipment number|shipment #|tracking no\.?|tracking number|tracking #|awb no\.?|awb|pro no\.?)\s*[:#-]?\s*([A-Z0-9\-/]{5,})',
+      r'(?:bill of lading no\.?|bill of lading|waybill no\.?|waybill number|waybill|shipment no\.?|shipment number|shipment #|tracking no\.?|tracking number|tracking #|awb no\.?|awb|pro no\.?|work order no\.?|work order number|work order #|work order|workorder no\.?|workorder #|workorder|wo no\.?|wo#|job order no\.?|job order number|job order #|job order|job no\.?|job number|job #|order no\.?|order number|order #)\s*[:#-]?\s*([A-Z0-9\-/]{3,})',
       caseSensitive: false,
     );
     final bolMatch = bolRegex.firstMatch(fullText);

@@ -63,6 +63,7 @@ class GalleryJobPhotosScreen extends StatelessWidget {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
+              childAspectRatio: 0.72,
             ),
             itemCount: photos.length,
             itemBuilder: (context, index) {
@@ -124,27 +125,35 @@ class GalleryJobPhotosScreen extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(10.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               name,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
+                                  .bodySmall
+                                  ?.copyWith(fontWeight: FontWeight.w700),
                             ),
-                            if (component != null && component.isNotEmpty)
+                            if (component != null && component.isNotEmpty) ...[
+                              const SizedBox(height: 2),
                               Text(
                                 component,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                               ),
-                            if (stage != null && stage.isNotEmpty)
+                            ],
+                            if (stage != null && stage.isNotEmpty) ...[
+                              const SizedBox(height: 2),
                               Text(
                                 'Stage: $stage',
                                 maxLines: 1,
@@ -153,9 +162,13 @@ class GalleryJobPhotosScreen extends StatelessWidget {
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                      color: Theme.of(context).hintColor,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.8),
                                     ),
                               ),
+                            ],
                           ],
                         ),
                       ),

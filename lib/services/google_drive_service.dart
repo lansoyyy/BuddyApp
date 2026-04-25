@@ -471,32 +471,61 @@ class GoogleDriveService {
       }
 
       if (showTitle) {
-        final titleTemplate = storage.getSetting<String>(
-              'watermarkTitleTemplate',
-              defaultValue: '{fileName}',
-            ) ??
-            '{fileName}';
+        // Load per-field title toggles
+        final titleShowWorkorder = storage
+                .getSetting<bool>('titleShowWorkorder', defaultValue: true) ??
+            true;
+        final titleShowComponent = storage
+                .getSetting<bool>('titleShowComponent', defaultValue: true) ??
+            true;
+        final titleShowStage =
+            storage.getSetting<bool>('titleShowStage', defaultValue: false) ??
+                false;
 
-        final titleVars = <String, String>{
-          'fileName': fileName,
-          'workorderNumber': workorderNumber,
-          'component': component,
-          'processStage': processStage,
-          'project': project,
-          'componentPart': componentPart,
-          'componentStamp': componentStamp,
-          'inspectionStatus': inspectionStatus,
-          'urgencyLevel': urgencyLevel,
-          'description': description,
-        };
+        // Build title from enabled fields
+        final titleParts = <String>[];
+        if (titleShowWorkorder && workorderNumber.isNotEmpty) {
+          titleParts.add('WO#$workorderNumber');
+        }
+        if (titleShowComponent && component.isNotEmpty) {
+          titleParts.add(component);
+        }
+        if (titleShowStage && processStage.isNotEmpty) {
+          titleParts.add(processStage);
+        }
 
-        var title = titleTemplate;
-        titleVars.forEach((key, value) {
-          title = title.replaceAll('{$key}', value);
-        });
-        title = title.trim();
-        if (title.isEmpty) {
-          title = fileName;
+        String title;
+        if (titleParts.isNotEmpty) {
+          title = titleParts.join(' | ');
+        } else {
+          // Fall back to the template if all toggles are off
+          final titleTemplate = storage.getSetting<String>(
+                'watermarkTitleTemplate',
+                defaultValue: '{fileName}',
+              ) ??
+              '{fileName}';
+
+          final titleVars = <String, String>{
+            'fileName': fileName,
+            'workorderNumber': workorderNumber,
+            'component': component,
+            'processStage': processStage,
+            'project': project,
+            'componentPart': componentPart,
+            'componentStamp': componentStamp,
+            'inspectionStatus': inspectionStatus,
+            'urgencyLevel': urgencyLevel,
+            'description': description,
+          };
+
+          title = titleTemplate;
+          titleVars.forEach((key, value) {
+            title = title.replaceAll('{$key}', value);
+          });
+          title = title.trim();
+          if (title.isEmpty) {
+            title = fileName;
+          }
         }
 
         lines.add(truncate(title));
